@@ -25,7 +25,7 @@ from distutils.core import setup
 
 version = '0.5'
 
-setup(name='sparqlclient',
+setup(name='sparql-client',
       version=version,
       classifiers = [
         'Development Status :: 4 - Beta',
@@ -50,5 +50,5 @@ Visit http://www.eionet.europa.eu/software/pysparql for documentation and exampl
       author='Soren Roug',
       author_email='soren.roug@eea.europa.eu',
       url='http://www.eionet.europa.eu/software/pysparql',
-      py_modules =['sparqlclient'],
+      py_modules =['sparql'],
       )
