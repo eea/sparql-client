@@ -1,0 +1,6 @@
+#!/bin/sh
+#for file in test*.py
+for file in testdatatypes.py testparser.py testdates.py
+do
+    python $file
+done

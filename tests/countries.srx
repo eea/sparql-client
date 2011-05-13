@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sparql xmlns='http://www.w3.org/2005/sparql-results#'>
+	<head>
+		<variable name='eeaURI'/>
+		<variable name='gdpTotal'/>
+		<variable name='eeacode'/>
+		<variable name='nutscode'/>
+		<variable name='faocode'/>
+		<variable name='gdp'/>
+		<variable name='name'/>
+	</head>
+	<results>
+		<result>
+			<binding name='nutscode'>
+				<literal>BE</literal>
+			</binding>
+			<binding name='name'>
+				<literal xml:lang='en'>Belgium</literal>
+			</binding>
+			<binding name='gdp'>
+				<literal datatype='http://www.w3.org/2001/XMLSchema#float'>44.252934</literal>
+			</binding>
+			<binding name='faocode'>
+				<literal datatype='http://www.w3.org/2001/XMLSchema#string'>255</literal>
+			</binding>
+			<binding name='gdpTotal'>
+				<literal datatype='http://aims.fao.org/aos/geopolitical.owl#MillionUSD'>471161.0</literal>
+			</binding>
+			<binding name='eeacode'>
+				<literal xml:lang='en'>BE</literal>
+			</binding>
+			<binding name='eeaURI'>
+				<uri>http://rdfdata.eionet.europa.eu/eea/countries/BE</uri>
+			</binding>
+		</result>
+		<result>
+			<binding name='name'>
+				<literal xml:lang='en'>Albania</literal>
+			</binding>
+			<binding name='gdp'>
+				<literal datatype='http://www.w3.org/2001/XMLSchema#float'>3.808241</literal>
+			</binding>
+			<binding name='faocode'>
+				<literal datatype='http://www.w3.org/2001/XMLSchema#string'>3</literal>
+			</binding>
+			<binding name='gdpTotal'>
+				<literal datatype='http://aims.fao.org/aos/geopolitical.owl#MillionUSD'>12015.0</literal>
+			</binding>
+			<binding name='eeacode'>
+				<literal>AL</literal>
+			</binding>
+			<binding name='eeaURI'>
+				<uri>http://rdfdata.eionet.europa.eu/eea/countries/AL</uri>
+			</binding>
+		</result>
+		<result>
+			<binding name='name'>
+				<literal xml:lang='en'>Japan</literal>
+			</binding>
+			<binding name='gdpTotal'>
+				<literal datatype='http://aims.fao.org/aos/geopolitical.owl#MillionUSD'>5069000.0</literal>
+			</binding>
+		</result>
+	</results>
+</sparql>

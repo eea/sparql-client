@@ -1,0 +1,5 @@
+PREFIX f: <http://www.fao.org/countryprofiles/geoinfo/geopolitical/resource/>
+
+SELECT * WHERE {
+ ?subj f:codeCurrency "EUR or €"^^<http://www.w3.org/2001/XMLSchema#string>
+}

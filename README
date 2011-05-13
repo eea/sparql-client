@@ -1,0 +1,63 @@
+SPARQL HTTP client library
+==========================
+
+Performs SELECT and ASK queries on an endpoint which implements the HTTP (GET or POST) 
+bindings of the SPARQL Protocol.
+
+This library was designed to have no other dependencies than the Python standard library.
+
+API based on SPARQL JavaScript Library by Lee Feigenbaum and Elias Torres
+http://www.thefigtrees.net/lee/sw/sparql.js
+
+Heavy influence from Juan Manuel Caicedo's SPARQL library
+
+API:
+----
+
+First you open a connection to the endpoint::
+
+    s = sparql.Service(endpoint)
+
+Then you make the query::
+
+    result = s.query(statement)
+
+If you have made a SELECT query, then you can read the result with fetchone() or fetchall()::
+
+    for row in result.fetchone():
+
+If you have made an ASK query, then you can read the result (a boolean value) with hasresult():
+
+    works = result.hasresult()
+
+Conversion of data types:
+-------------------------
+
+The library will automatically convert typed literals to a coresponding
+simple type in Python. The main exception are dates. These are not converted.
+This is because there is a plethora of date parsers in the Python world, but
+none that are part of the standard library.
+
+Proposals/recommendations:
+
+- isodate http://www.mnot.net/python/isodate.py
+- dateutil http://labix.org/python-dateutil
+
+
+Example::
+
+    from dateutil.parser import parse as date_parser
+    # Example: date_parser("2007-03-04T21:08:12Z")
+    s = sparql.Service(endpoint)
+    sparql.set_converter(sparql.XSD_DATETIME, date_parser)
+
+Running the unit tests:
+-----------------------
+
+If you have nose_ installed, just run ``nosetests`` in the top-level directory.
+Some tests require the python-dateutil_ (version 1.5) or mock_ libraries.
+Tested under Python 2.4 through 2.7.
+
+.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
+.. _python-dateutil: http://niemeyer.net/python-dateutil
+.. _mock: http://www.voidspace.org.uk/python/mock/

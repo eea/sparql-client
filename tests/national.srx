@@ -1,0 +1,16 @@
+<sparql xmlns="http://www.w3.org/2005/sparql-results#"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.w3.org/2001/sw/DataAccess/rf1/result2.xsd">
+ <head>
+  <variable name="subj"/>
+  <variable name="nameen"/>
+  <variable name="nameru"/>
+ </head>
+ <results distinct="false" ordered="true">
+  <result>
+   <binding name="subj"><uri>http://aims.fao.org/aos/geopolitical.owl#Germany</uri></binding>
+   <binding name="nameen"><literal datatype="http://www.w3.org/2001/XMLSchema#string">Germany</literal></binding>
+   <binding name="nameru"><literal datatype="http://www.w3.org/2001/XMLSchema#string">Германия</literal></binding>
+  </result>
+ </results>
+</sparql>
