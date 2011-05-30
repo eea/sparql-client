@@ -52,7 +52,7 @@ class TestLiterals(unittest.TestCase):
     def test_repr(self):
         """ repr should return the literal in N3 syntax """
         l = sparql.Literal(u"Hello world")
-        self.assertEqual(u"<Literal 'Hello world'>", repr(l))
+        self.assertEqual(u'<Literal "Hello world">', repr(l))
 
 class TestTypedLiterals(unittest.TestCase):
 
@@ -64,7 +64,7 @@ class TestTypedLiterals(unittest.TestCase):
     def test_repr(self):
         """ repr should return the literal in N3 syntax """
         l = sparql.Literal(u"Hello world",u"http://www.w3.org/2001/XMLSchema#string")
-        self.assertEqual(u"<Literal 'Hello world'^^http://www.w3.org/2001/XMLSchema#string>", repr(l))
+        self.assertEqual(u'<Literal "Hello world"^^http://www.w3.org/2001/XMLSchema#string>', repr(l))
 
     def test_str(self):
         """ str should return the literal without type """
@@ -132,31 +132,32 @@ class TestIRIs(unittest.TestCase):
         self.assertFalse(i1 == {'http://example.com/asdf':
                                 'http://example.com/asdf'})
 
-class TestNotation3(unittest.TestCase):
+_literal_data = [
+    (''                     , '""'),
+    (' '                    , '" "'),
+    ('hello'                , '"hello"'),
+    ("back\\slash"          , '"back\\\\slash"'),
+    ('quot"ed'              , '"quot\\"ed"'),
+    ("any\"quot'es"         , '"any\\"quot\'es"'),
+    ("new\nlines"           , '"new\\nlines"'),
+    ("ta\tbs"               , '"ta\\tbs"'),
+    (u"ascii-unicode"       , '"ascii-unicode"'),
+    (u"̈Ünɨcøðé"             , '"\\u0308\\u00dcn\\u0268c\\u00f8\\u00f0\\u00e9"'),
+    (u"\u6f22\u5b57(kanji)" , '"\u6f22\u5b57(kanji)"'),
+]
 
-    _literal_data = {
-        ''                     : "''",
-        ' '                    : "' '",
-        'hello'                : "'hello'",
-        "back\\slash"          : "'back\\\\slash'",
-        "quot'ed"              : "\"quot'ed\"",
-        "any\"quot'es"         : "'any\"quot\\'es\'",
-        "new\nlines"           : "'new\\nlines'",
-        "ta\tbs"               : "'ta\\tbs'",
-        u"ascii-unicode"       : "'ascii-unicode'",
-        u"\u6f22\u5b57(kanji)" : "'\u6f22\u5b57(kanji)'",
-    }
+class TestNotation3(unittest.TestCase):
 
     def test_literal(self):
         """ Notation3 representation of a literal """
-        for value, expected in self._literal_data.iteritems():
+        for value, expected in _literal_data:
             self.assertEqual(sparql.Literal(value).n3(), expected)
             self.assertEqual(sparql.Literal(value, lang='en').n3(), expected+'@en')
 
     def test_typed_literal(self):
         """ N3 notation of a typed literal """
         datatype = u"http://www.w3.org/2001/XMLSchema#string"
-        for value, expected in self._literal_data.iteritems():
+        for value, expected in _literal_data:
             tl = sparql.Literal(value, datatype)
             self.assertEqual(tl.n3(), '%s^^%s' % (expected, datatype))
 

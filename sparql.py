@@ -156,6 +156,22 @@ class IRI(RDFTerm):
     def n3(self):
         return '<%s>' % self.value
 
+_n3_quote_char = re.compile(r'[^ -~]|["\\]')
+_n3_quote_map = {
+    '"': '\\"',
+    '\n': '\\n',
+    '\t': '\\t',
+    '\\': '\\\\',
+}
+def _n3_quote(string):
+    def escape(m):
+        ch = m.group()
+        if ch in _n3_quote_map:
+            return _n3_quote_map[ch]
+        else:
+            return "\\u%04x" % ord(ch)
+    return '"' + _n3_quote_char.sub(escape, string) + '"'
+
 class Literal(RDFTerm):
     """
     Literals. These can take a data type or a language code.
@@ -178,10 +194,7 @@ class Literal(RDFTerm):
            return False
 
     def n3(self):
-        # Notation3 explicitly states that its quoting conventions are the
-        # same as Python's, so we can just use `repr` here.
-        # http://www.w3.org/DesignIssues/Notation3.html#String
-        n3_value = repr(self.value)[1:]
+        n3_value = _n3_quote(self.value)
 
         if self.datatype is not None:
             n3_value += '^^' + self.datatype

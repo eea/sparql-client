@@ -14,6 +14,11 @@ _string_literals = [
     ("'''some\ntext\n   with spaces'''", 'some\ntext\n   with spaces'),
 ]
 
+from testdatatypes import _literal_data
+for _value, _n3 in _literal_data:
+    _string_literals.append((_n3, _value))
+
+
 class N3ParsingTest(unittest.TestCase):
 
     def test_unicode(self):
