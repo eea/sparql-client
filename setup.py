@@ -19,11 +19,12 @@
 #
 # Contributor(s):
 # Søren Roug, EEA
+# Alex Morega, Eau de Web
 
 import platform
 from distutils.core import setup
 
-version = '0.5'
+version = '0.6'
 
 setup(name='sparql-client',
       version=version,

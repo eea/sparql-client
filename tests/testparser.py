@@ -8,6 +8,8 @@ import os.path
 def _open_datafile(name):
     return open(os.path.join(os.path.dirname(__file__), name))
 
+XSD_FAO_MILLION = "http://aims.fao.org/aos/geopolitical.owl#MillionUSD"
+
 class TestParser(unittest.TestCase):
 
     def test_simple(self):
@@ -16,13 +18,25 @@ class TestParser(unittest.TestCase):
         result = sparql._ResultsParser(resultfp)
         self.assertEqual([u'eeaURI', u'gdpTotal', u'eeacode', u'nutscode', u'faocode', u'gdp', u'name'], result.variables)
 
+        rows = result.fetchall()
+        row0 = rows[0]
+        self.assertEqual(sparql.IRI(u"http://rdfdata.eionet.europa.eu/eea/countries/BE"), row0[0])
+        self.assertEqual(sparql.Literal("471161.0", XSD_FAO_MILLION), row0[1])
+        self.assertEqual(sparql.Literal("44.252934", sparql.XSD_FLOAT), row0[5])
+
+    def test_unpack(self):
+        resultfp = _open_datafile("countries.srx")
+        result = sparql._ResultsParser(resultfp)
+        self.assertEqual([u'eeaURI', u'gdpTotal', u'eeacode', u'nutscode', u'faocode', u'gdp', u'name'], result.variables)
+
         rows = map(sparql.unpack_row, result.fetchall())
         row0 = rows[0]
-        self.assertEqual("http://rdfdata.eionet.europa.eu/eea/countries/BE", str(row0[0]))
-        self.assertEqual(sparql.IRI(u"http://rdfdata.eionet.europa.eu/eea/countries/BE"), row0[0])
+        self.assertEqual(u"http://rdfdata.eionet.europa.eu/eea/countries/BE", row0[0])
+        # XSD_FAO_MILLION unpacked as string
+        self.assertEqual("471161.0", row0[1])
+        # XSD_FLOAT unpacked as float
+        self.assertNotEqual("44.252934", row0[5])
         self.assertEqual(44.252934, row0[5])
-        self.assertNotEqual("471161.0", row0[1])
-        self.assertEqual("471161.0", str(row0[1]))
 
     def test_fetchmany(self):
         """ Simple query with unbound variables """

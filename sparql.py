@@ -19,6 +19,7 @@
 #
 # Contributor(s):
 # Søren Roug, EEA
+# Alex Morega, Eau de Web
 
 '''Sparql HTTP API and client
 
@@ -389,17 +390,13 @@ def unpack_row(row, type_map=_types):
     """ Unpack a row of results into basic Python types, where possible. """
     out = []
     for item in row:
-        if isinstance(item, Literal):
-            if item.datatype in type_map:
-                item = type_map[item.datatype](item.value)
-        # TODO should we not unpack more values, too?
-        #    else:
-        #        item = item.value
-        #elif isinstance(item, Literal):
-        #    item = item.value
-        #elif isinstance(item, IRI):
-        #    item = item.value
-        out.append(item)
+        if item is None:
+            value = None
+        elif isinstance(item, Literal) and item.datatype in type_map:
+            value = type_map[item.datatype](item.value)
+        else:
+            value = item.value
+        out.append(value)
     return out
 
 def set_converter(datatype, func):
