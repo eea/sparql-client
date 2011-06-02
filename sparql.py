@@ -528,19 +528,18 @@ class _ResultsParser:
                     idx = self.variables.index(node.attributes['name'].value)
                 elif node.tagName == 'uri':
                     self.events.expandNode(node)
-                    self._vals[idx] = IRI(node.firstChild.data)
+                    data = ''.join(t.data for t in node.childNodes)
+                    self._vals[idx] = IRI(data)
                 elif node.tagName == 'literal':
                     self.events.expandNode(node)
-                    if node.hasChildNodes():
-                        data = node.firstChild.data
-                    else:
-                        data = ''
+                    data = ''.join(t.data for t in node.childNodes)
                     lang = node.getAttribute('xml:lang') or None
                     datatype = Datatype(node.getAttribute('datatype')) or None
                     self._vals[idx] = Literal(data, datatype, lang)
                 elif node.tagName == 'bnode':
                     self.events.expandNode(node)
-                    self._vals[idx] = BlankNode(node.firstChild.data)
+                    data = ''.join(t.data for t in node.childNodes)
+                    self._vals[idx] = BlankNode(data)
 
             elif event == pulldom.END_ELEMENT:
                 if node.tagName == 'result':

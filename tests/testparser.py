@@ -93,6 +93,17 @@ class TestParser(unittest.TestCase):
         self.assertEqual(sparql.IRI(u"http://aims.fao.org/aos/geopolitical.owl#Germany"), row0[0])
         self.assertEqual(u"Германия", unicode(row0[2]))
 
+    def test_big_text(self):
+        # `xml.dom.pulldom` may return several text nodes within a single
+        # binding. This seems to be triggered especially by entities, e.g.
+        # "&lt;".
+        resultfp = _open_datafile("big_text.srx")
+        result = sparql._ResultsParser(resultfp)
+        row0 = result.fetchall()[0]
+        self.assertEqual("multiple<br>paragraphs<br>here", row0[0].value)
+        self.assertEqual("http://example.com/", row0[1].value)
+        self.assertEqual("bnode.id", row0[2].value)
+
 
 if __name__ == '__main__':
     unittest.main()
