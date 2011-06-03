@@ -68,7 +68,7 @@ class N3ParsingTest(unittest.TestCase):
     def test_typed_literals(self):
         million_uri = u"http://aims.fao.org/aos/geopolitical.owl#MillionUSD"
         for n3_value, value in _string_literals:
-            n3_value_with_type = n3_value + '^^' + million_uri
+            n3_value_with_type = n3_value + '^^<' + million_uri + '>'
             result = sparql.parse_n3_term(n3_value_with_type)
             self.assertTrue(type(result) is sparql.Literal)
             self.assertEqual(result.datatype, million_uri)

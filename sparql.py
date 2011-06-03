@@ -198,7 +198,7 @@ class Literal(RDFTerm):
         n3_value = _n3_quote(self.value)
 
         if self.datatype is not None:
-            n3_value += '^^' + self.datatype
+            n3_value += '^^<%s>' % self.datatype
 
         if self.lang is not None:
             n3_value += '@' + self.lang
@@ -223,7 +223,7 @@ class BlankNode(RDFTerm):
         return '_:%s' % self.value
 
 _n3parser_lang = re.compile(r'@(?P<lang>\w+)$')
-_n3parser_datatype = re.compile(r'\^\^(?P<datatype>[^\^"\']+)$')
+_n3parser_datatype = re.compile(r'\^\^<(?P<datatype>[^\^"\'>]+)>$')
 
 def parse_n3_term(src):
     """

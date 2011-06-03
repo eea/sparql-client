@@ -64,7 +64,7 @@ class TestTypedLiterals(unittest.TestCase):
     def test_repr(self):
         """ repr should return the literal in N3 syntax """
         l = sparql.Literal(u"Hello world",u"http://www.w3.org/2001/XMLSchema#string")
-        self.assertEqual(u'<Literal "Hello world"^^http://www.w3.org/2001/XMLSchema#string>', repr(l))
+        self.assertEqual(u'<Literal "Hello world"^^<http://www.w3.org/2001/XMLSchema#string>>', repr(l))
 
     def test_str(self):
         """ str should return the literal without type """
@@ -159,7 +159,7 @@ class TestNotation3(unittest.TestCase):
         datatype = u"http://www.w3.org/2001/XMLSchema#string"
         for value, expected in _literal_data:
             tl = sparql.Literal(value, datatype)
-            self.assertEqual(tl.n3(), '%s^^%s' % (expected, datatype))
+            self.assertEqual(tl.n3(), '%s^^<%s>' % (expected, datatype))
 
 if __name__ == '__main__':
     unittest.main()
