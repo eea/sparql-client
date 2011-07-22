@@ -42,7 +42,7 @@ USAGE
 
 '''
 
-__version__ = 0.5
+__version__ = 0.7
 
 import copy
 
@@ -625,7 +625,5 @@ if __name__ == '__main__':
 
     q = sys.stdin.read()
     result = query(endpoint, q)
-    print result.variables
     for row in result.fetchone():
         print "\t".join(map(unicode,row))
-        print row
