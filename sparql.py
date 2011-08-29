@@ -52,6 +52,7 @@ from base64 import encodestring
 from string import replace
 import compiler
 import re
+import decimal
 
 from xml.dom import pulldom
 
@@ -374,12 +375,11 @@ def _parseBoolean(val):
 
 # XMLSchema types and cast functions
 _types = {
-    '': unicode,
     XSD_INTEGER: int,
-    XSD_LONG: float, 
+    XSD_LONG: int,
     XSD_DOUBLE: float,
     XSD_FLOAT: float,
-    XSD_DECIMAL: int,
+    XSD_DECIMAL: decimal.Decimal,
     XSD_BOOLEAN: _parseBoolean,
 }
 
