@@ -11,7 +11,7 @@ master_doc = 'index'
 project = u'sparql-client'
 copyright = u'2011, European Environment Agency'
 
-version = '0.7'
+from sparql import __version__ as version
 release = version
 
 exclude_patterns = ['_build']
