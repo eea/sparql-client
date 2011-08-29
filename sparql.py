@@ -388,8 +388,8 @@ _types = {
 try:
     import dateutil.parser
     _types[XSD_DATETIME] = dateutil.parser.parse
-    _types[XSD_DATE] = dateutil.parser.parse
-    _types[XSD_TIME] = dateutil.parser.parse
+    _types[XSD_DATE] = lambda v: dateutil.parser.parse(v).date()
+    _types[XSD_TIME] = lambda v: dateutil.parser.parse(v).time()
 except ImportError:
     pass
 

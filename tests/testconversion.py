@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+from datetime import datetime, date, time
 import sparql
 import os.path
 from mock import Mock, patch
@@ -21,14 +22,20 @@ class TestConversion(unittest.TestCase):
         """ Simple query with unbound variables """
         import dateutil # make sure python-dateutil is installed
         self.assertEqual([u'name', u'decimalData', u'lastupdated',
-                          u'entryCreated', u'foundingDate', u'timeexample'],
+                          u'foundingDate', u'timeexample'],
                          self.result.variables)
 
         rows = map(sparql.unpack_row, self.result.fetchall())
         row0 = rows[0]
-        self.assertEqual(1981,row0[3].year)
-        self.assertEqual(18,row0[5].hour)
-        self.assertEqual(21,row0[5].second)
+
+        self.assertEqual(type(row0[2]), datetime)
+        self.assertEqual(datetime(2009, 11, 02, 14, 31, 40), row0[2])
+
+        self.assertEqual(type(row0[3]), date)
+        self.assertEqual(date(1991, 8, 20), row0[3])
+
+        self.assertEqual(type(row0[4]), time)
+        self.assertEqual(time(18, 58, 21), row0[4])
 
     def test_decimal(self):
         import decimal

@@ -3,7 +3,6 @@
   <variable name="name"/>
   <variable name="decimalData"/>
   <variable name="lastupdated"/>
-  <variable name="entryCreated"/>
   <variable name="foundingDate"/>
   <variable name="timeexample"/>
  </head>
@@ -12,7 +11,6 @@
    <binding name="name"><literal xml:lang="en">Estonia</literal></binding>
    <binding name="decimalData"><literal datatype="http://www.w3.org/2001/XMLSchema#decimal">123.456</literal></binding>
    <binding name="lastupdated"><literal datatype="http://www.w3.org/2001/XMLSchema#dateTime">2009-11-02 14:31:40</literal></binding>
-   <binding name="entryCreated"><literal datatype="http://www.w3.org/2001/XMLSchema#dateTime">1981-01-26T00:00:00</literal></binding>
    <binding name="foundingDate"><literal datatype="http://www.w3.org/2001/XMLSchema#date">1991-08-20</literal></binding>
    <binding name="timeexample"><literal datatype="http://www.w3.org/2001/XMLSchema#time">18:58:21</literal></binding>
   </result>
