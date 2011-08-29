@@ -21,26 +21,29 @@
 # Søren Roug, EEA
 # Alex Morega, Eau de Web
 
-'''Sparql HTTP API and client
+"""
+The `sparql` module can be invoked in several different ways. To quickly run a
+query use :py:func:`query`. Results are encapsulated in a
+:py:class:`_ResultsParser` instance::
 
-Performs SELECT and ASK queries on an endpoint which implements the HTTP (GET or POST) 
-bindings of the SPARQL Protocol.
+    >>> result = sparql.query(endpoint, query)
+    >>> for row in result.rows:
+    >>>    print row
 
-API based on SPARQL JavaScript Library by Lee Feigenbaum and Elias Torres
-http://www.thefigtrees.net/lee/sw/sparql.js
 
-Heavy influence from Juan Manuel Caicedo's SPARQL library
+Command-line use
+----------------
 
-USAGE
+::
+
     sparql.py [-i] endpoint
         -i Interactive mode
 
-    If interactive mode is enabled, the program reads queries from the console
-    and then executes them. Use a double line (two 'enters') to separate queries.
+If interactive mode is enabled, the program reads queries from the console
+and then executes them. Use a double line (two 'enters') to separate queries.
 
-    Otherwise, the query is read from standard input.
-
-'''
+Otherwise, the query is read from standard input.
+"""
 
 __version__ = 0.7
 
@@ -120,8 +123,8 @@ def Datatype(value):
 
 class RDFTerm(object):
     """
-    Super class containing methods to override.
-    The term RDFTerm is taken from the SPARQL specification.
+    Super class containing methods to override. :py:class:`IRI`,
+    :py:class:`Literal` and :py:class:`BlankNode` all inherit from `RDFTerm`.
     """
 
     __allow_access_to_unprotected_subobjects__ = {'n3': 1}
@@ -133,16 +136,17 @@ class RDFTerm(object):
         return self.value
 
     def n3(self):
-        """
-        To override
-        See N-Triples syntax: http://www.w3.org/TR/rdf-testcases/#ntriples
-        """
+        """ Return a Notation3 representation of this term. """
+        # To override
+        # See N-Triples syntax: http://www.w3.org/TR/rdf-testcases/#ntriples
         raise NotImplementedError("Subclasses of RDFTerm must implement `n3`")
 
     def __repr__(self):
         return '<%s %s>' % (type(self).__name__, self.n3())
 
 class IRI(RDFTerm):
+    """ An RDF resource. """
+
     def __init__(self, value):
         self.value = value
 
@@ -207,9 +211,7 @@ class Literal(RDFTerm):
         return n3_value
 
 class BlankNode(RDFTerm):
-    """
-    Blank nodes
-    """
+    """ Blank node. Similar to `IRI` but lacks a stable identifier. """
     def __init__(self, value):
         self.value = value
 
@@ -228,7 +230,7 @@ _n3parser_datatype = re.compile(r'\^\^<(?P<datatype>[^\^"\'>]+)>$')
 
 def parse_n3_term(src):
     """
-    Parse a Notation3 value into a RDFTerm object (IRI or Literal)
+    Parse a Notation3 value into a RDFTerm object (IRI or Literal).
 
     This parser understands IRIs and quoted strings; basic non-string types
     (integers, decimals, booleans, etc) are not supported yet.
@@ -552,7 +554,7 @@ class _ResultsParser:
                     yield tuple(self._vals)
 
     def fetchall(self):
-        """ Loop through the result to build up a list of all rows
+        """ Loop through the result to build up a list of all rows.
             Patterned after DB-API 2.0.
         """
         result = []
@@ -569,7 +571,10 @@ class _ResultsParser:
         return result
 
 def query(endpoint, query):
-    """ Convenient method to execute a query
+    """
+    Convenient method to execute a query. Exactly equivalent to::
+
+        Service(endpoint).query(query)
     """
     s = Service(endpoint)
     return s.query(query)
