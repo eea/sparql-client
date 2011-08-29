@@ -23,11 +23,11 @@
 
 """
 The `sparql` module can be invoked in several different ways. To quickly run a
-query use :py:func:`query`. Results are encapsulated in a
-:py:class:`_ResultsParser` instance::
+query use :func:`query`. Results are encapsulated in a
+:class:`_ResultsParser` instance::
 
     >>> result = sparql.query(endpoint, query)
-    >>> for row in result.rows:
+    >>> for row in result:
     >>>    print row
 
 
@@ -123,8 +123,8 @@ def Datatype(value):
 
 class RDFTerm(object):
     """
-    Super class containing methods to override. :py:class:`IRI`,
-    :py:class:`Literal` and :py:class:`BlankNode` all inherit from `RDFTerm`.
+    Super class containing methods to override. :class:`IRI`,
+    :class:`Literal` and :class:`BlankNode` all inherit from :class:`RDFTerm`.
     """
 
     __allow_access_to_unprotected_subobjects__ = {'n3': 1}
@@ -345,7 +345,7 @@ class _ServiceMixin:
 class Service(_ServiceMixin):
     """
     This is the main entry to the library.
-    The user creates a Service, then sends a query to it.
+    The user creates a :class:`Service`, then sends a query to it.
     If we want to have persistent connections, then open them here.
     """
     def __init__(self, endpoint, qs_encoding = "utf-8"):
@@ -394,7 +394,23 @@ except ImportError:
     pass
 
 def unpack_row(row, convert=None):
-    """ Unpack a row of results into basic Python types, where possible. """
+    """
+    Convert values in the given row from :class:`RDFTerm` objects to plain
+    Python values: :class:`IRI` is converted to a unicode string containing
+    the IRI value; :class:`BlankNode` is converted to a unicode string with
+    the BNode's identifier, and :class:`Literal` is converted based on its
+    XSD datatype.
+
+    The library knows about common XSD types (STRING becomes :class:`unicode`,
+    INTEGER and LONG become :class:`int`, DOUBLE and FLOAT become
+    :class:`float`, DECIMAL becomes :class:`~decimal.Decimal`, BOOLEAN becomes
+    :class:`bool`). If the `python-dateutil` library is found, then DATE,
+    TIME and DATETIME are converted to :class:`~datetime.date`,
+    :class:`~datetime.time` and :class:`~datetime.datetime` respectively.  For
+    other conversions, an extra argument `convert` may be passed. It should be
+    a callable accepting two arguments: the serialized value as a
+    :class:`unicode` object, and the XSD datatype.
+    """
     out = []
     for item in row:
         if item is None:
@@ -505,18 +521,19 @@ class _ResultsParser:
 
     def hasresult(self):
         """
-        ASK queries are used to test if a query would have a result.
-        If the query is an ASK query there won't be an actual result, and
-        fetchone() will return nothing. Instead, this method can be called
-        to check the result from the ASK query.
+        ASK queries are used to test if a query would have a result.  If the
+        query is an ASK query there won't be an actual result, and
+        :func:`fetchone` will return nothing. Instead, this method can be
+        called to check the result from the ASK query.
 
-        If the query is a SELECT statement, then the return value of hasresult()
-        is None, as the XML result format doesn't tell you if there are any
-        rows in the result until you have read the first one.
+        If the query is a SELECT statement, then the return value of
+        :func:`hasresult` is `None`, as the XML result format doesn't tell you
+        if there are any rows in the result until you have read the first one.
         """
         return self._hasResult
 
     def __iter__(self):
+        """ Synonim for :func:`fetchone`. """
         return self.fetchone()
 
     def fetchone(self):
@@ -574,7 +591,7 @@ def query(endpoint, query):
     """
     Convenient method to execute a query. Exactly equivalent to::
 
-        Service(endpoint).query(query)
+        sparql.Service(endpoint).query(query)
     """
     s = Service(endpoint)
     return s.query(query)

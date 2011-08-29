@@ -2,7 +2,7 @@
 
 import sys, os
 
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx']
 
 templates_path = ['_templates']
 source_suffix = '.rst'
@@ -16,6 +16,7 @@ release = version
 
 exclude_patterns = ['_build']
 pygments_style = 'sphinx'
+intersphinx_mapping = {'python': ('http://docs.python.org', None)}
 
 html_theme = 'default'
 html_static_path = ['_static']

@@ -1,5 +1,5 @@
-sparql module
-=============
+:mod:`sparql` module
+====================
 
 .. automodule:: sparql
 
@@ -24,6 +24,8 @@ Query utilities
 
 .. autoclass:: _ResultsParser
     :members:
+
+    .. automethod:: __iter__
 
 .. autofunction:: sparql.parse_n3_term
 
