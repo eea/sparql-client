@@ -368,42 +368,47 @@ class Service(_ServiceMixin):
 def _parseBoolean(val):
     if val.lower() in ('true', '1'):
         return True
-    else: return False
+    else:
+        return False
 
 
-#XMLSchema types and cast functions
+# XMLSchema types and cast functions
 _types = {
     '': unicode,
-#   XSD_STRING: unicode,
     XSD_INTEGER: int,
     XSD_LONG: float, 
     XSD_DOUBLE: float,
     XSD_FLOAT: float,
     XSD_DECIMAL: int,
     XSD_BOOLEAN: _parseBoolean,
-    XSD_DATETIME: None,
-    XSD_DATE: None,
-    XSD_TIME: None
 }
 
-def unpack_row(row, type_map=_types):
+try:
+    import dateutil.parser
+    _types[XSD_DATETIME] = dateutil.parser.parse
+    _types[XSD_DATE] = dateutil.parser.parse
+    _types[XSD_TIME] = dateutil.parser.parse
+except ImportError:
+    pass
+
+def unpack_row(row, convert=None):
     """ Unpack a row of results into basic Python types, where possible. """
     out = []
     for item in row:
         if item is None:
             value = None
-        elif isinstance(item, Literal) and item.datatype in type_map:
-            value = type_map[item.datatype](item.value)
+        elif isinstance(item, Literal):
+            if item.datatype in _types:
+                to_python = _types[item.datatype]
+                value = to_python(item.value)
+            elif convert is not None:
+                value = convert(item.value, item.datatype)
+            else:
+                value = item.value
         else:
             value = item.value
         out.append(value)
     return out
-
-def set_converter(datatype, func):
-    """
-    Allows users to set a new conversion function for a type.
-    """
-    _types[datatype] = func
 
 #########################################
 #

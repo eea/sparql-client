@@ -30,26 +30,16 @@ If you have made an ASK query, then you can read the result (a boolean value) wi
 
     works = result.hasresult()
 
+
 Conversion of data types:
 -------------------------
 
 The library will automatically convert typed literals to a coresponding
-simple type in Python. The main exception are dates. These are not converted.
-This is because there is a plethora of date parsers in the Python world, but
-none that are part of the standard library.
+simple type in Python. Dates are also converted if the dateutil_ library is
+available.
 
-Proposals/recommendations:
+.. _dateutil: http://labix.org/python-dateutil
 
-- isodate http://www.mnot.net/python/isodate.py
-- dateutil http://labix.org/python-dateutil
-
-
-Example::
-
-    from dateutil.parser import parse as date_parser
-    # Example: date_parser("2007-03-04T21:08:12Z")
-    s = sparql.Service(endpoint)
-    sparql.set_converter(sparql.XSD_DATETIME, date_parser)
 
 Running the unit tests:
 -----------------------
