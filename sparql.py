@@ -373,7 +373,7 @@ try:
 except ImportError:
     pass
 
-def unpack_row(row, convert=None):
+def unpack_row(row, convert=None, convert_type={}):
     """
     Convert values in the given row from :class:`RDFTerm` objects to plain
     Python values: :class:`IRI` is converted to a unicode string containing
@@ -392,12 +392,14 @@ def unpack_row(row, convert=None):
     :class:`unicode` object, and the XSD datatype.
     """
     out = []
+    known_types = dict(_types)
+    known_types.update(convert_type)
     for item in row:
         if item is None:
             value = None
         elif isinstance(item, Literal):
-            if item.datatype in _types:
-                to_python = _types[item.datatype]
+            if item.datatype in known_types:
+                to_python = known_types[item.datatype]
                 value = to_python(item.value)
             elif convert is not None:
                 value = convert(item.value, item.datatype)

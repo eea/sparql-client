@@ -51,10 +51,19 @@ class TestConversion(unittest.TestCase):
         no_default_converters.start()
         try:
             row0 = sparql.unpack_row(list(self.result.fetchall())[0], convert)
-            self.assertTrue(row0[0] is convert.return_value)
+            self.assertTrue(row0[2] is convert.return_value)
             convert.assert_called_with("18:58:21", sparql.XSD_TIME)
         finally:
             no_default_converters.stop()
+
+    def test_custom_mapping(self):
+        convert_datetime = Mock()
+        row = list(self.result.fetchall())[0]
+        unpacked_row = sparql.unpack_row(row, convert_type={
+            sparql.XSD_DATETIME: convert_datetime,
+        })
+        self.assertTrue(unpacked_row[2] is convert_datetime.return_value)
+        convert_datetime.assert_called_with("2009-11-02 14:31:40")
 
 
 if __name__ == '__main__':
