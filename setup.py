@@ -2,6 +2,8 @@ from distutils.core import setup
 
 from sparql import __version__ as version
 
+docs = open('README.rst').read() + "\n\n" + open('CHANGES.rst').read()
+
 setup(name='sparql-client',
       version=version,
       classifiers = [
@@ -17,7 +19,7 @@ setup(name='sparql-client',
         'Topic :: Software Development :: Libraries :: Python Modules',
       ],
       description='Python API to query a SPARQL endpoint',
-      long_description=open('README').read(),
+      long_description=docs,
       author='Soren Roug',
       author_email='soren.roug@eea.europa.eu',
       url='http://www.eionet.europa.eu/software/sparql-client',
