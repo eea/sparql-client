@@ -25,7 +25,7 @@ and then executes them. Use a double line (two 'enters') to separate queries.
 Otherwise, the query is read from standard input.
 """
 
-__version__ = '0.8'
+__version__ = '0.9'
 
 import copy
 
