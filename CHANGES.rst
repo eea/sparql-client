@@ -1,7 +1,10 @@
 Changelog
 =========
 
-0.9 (unreleased)
+0.10 (unreleased)
+-----------------
+
+0.9 (2011-10-24)
 ----------------
 
 * New argument `convert_type` for `unpack_row` [moregale]
