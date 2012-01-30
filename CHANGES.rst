@@ -3,6 +3,7 @@ Changelog
 
 0.10 (unreleased)
 -----------------
+* Map the ``xsd:int`` type to Python's ``int``
 
 0.9 (2011-10-24)
 ----------------

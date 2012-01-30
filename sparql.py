@@ -59,10 +59,11 @@ RESULTS_TYPES = {
 # they have the same value. This way comparisons can happen on the
 # memory address rather than looping through the content.
 XSD_STRING = 'http://www.w3.org/2001/XMLSchema#string'
-XSD_INTEGER = 'http://www.w3.org/2001/XMLSchema#integer'
+XSD_INT = 'http://www.w3.org/2001/XMLSchema#int'
 XSD_LONG = 'http://www.w3.org/2001/XMLSchema#long'
 XSD_DOUBLE = 'http://www.w3.org/2001/XMLSchema#double'
 XSD_FLOAT = 'http://www.w3.org/2001/XMLSchema#float'
+XSD_INTEGER = 'http://www.w3.org/2001/XMLSchema#integer'
 XSD_DECIMAL = 'http://www.w3.org/2001/XMLSchema#decimal'
 XSD_DATETIME = 'http://www.w3.org/2001/XMLSchema#dateTime'
 XSD_DATE = 'http://www.w3.org/2001/XMLSchema#date'
@@ -72,10 +73,11 @@ XSD_BOOLEAN = 'http://www.w3.org/2001/XMLSchema#boolean'
 datatype_dict = {
                  '': '',
                  XSD_STRING : XSD_STRING,
-                 XSD_INTEGER : XSD_INTEGER,
+                 XSD_INT : XSD_INT,
                  XSD_LONG : XSD_LONG,
                  XSD_DOUBLE : XSD_DOUBLE,
                  XSD_FLOAT : XSD_FLOAT,
+                 XSD_INTEGER : XSD_INTEGER,
                  XSD_DECIMAL : XSD_DECIMAL,
                  XSD_DATETIME : XSD_DATETIME,
                  XSD_DATE : XSD_DATE,
@@ -357,10 +359,12 @@ def _parseBoolean(val):
 
 # XMLSchema types and cast functions
 _types = {
-    XSD_INTEGER: int,
+    XSD_INT: int,
     XSD_LONG: int,
     XSD_DOUBLE: float,
     XSD_FLOAT: float,
+    XSD_INTEGER: int, # INTEGER is a DECIMAL, but Python `int` has no size
+                      # limit, so it's safe to use
     XSD_DECIMAL: decimal.Decimal,
     XSD_BOOLEAN: _parseBoolean,
 }
