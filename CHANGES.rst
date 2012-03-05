@@ -1,9 +1,12 @@
 Changelog
 =========
 
-0.10 (unreleased)
+0.11 (unreleased)
 -----------------
-* Map the ``xsd:int`` type to Python's ``int``
+
+0.10 (2012-03-05)
+-----------------
+* Map the ``xsd:int`` type to Python's ``int`` [moregale]
 
 0.9 (2011-10-24)
 ----------------
