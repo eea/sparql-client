@@ -1,8 +1,12 @@
 Changelog
 =========
 
-0.11 (unreleased)
+0.12 (unreleased)
 -----------------
+
+0.11 (2012-04-15)
+-----------------
+* Added copyright message to sparql.py [roug]
 
 0.10 (2012-03-05)
 -----------------
