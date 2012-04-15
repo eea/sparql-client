@@ -19,6 +19,7 @@
 # Rights Reserved.
 #
 # Contributor(s):
+#  Søren Roug, EEA
 #  Alex Morega, Eau de Web
 
 """
