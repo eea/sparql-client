@@ -33,10 +33,13 @@ Briefly, here is how it works::
     http://dbpedia.org/resource/Salyut_7 - 51917 orbits
 
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
 
    install
    api
+
+.. include:: HISTORY.txt
