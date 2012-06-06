@@ -2,7 +2,7 @@ from distutils.core import setup
 
 from sparql import __version__ as version
 
-docs = open('README.rst').read() + "\n\n" + open('CHANGES.rst').read()
+docs = open('README.rst').read() + "\n\n" #+ open('CHANGES.rst').read()
 
 setup(name='sparql-client',
       version=version,
