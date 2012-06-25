@@ -445,14 +445,14 @@ class _Query(_ServiceMixin):
     def __init__(self, service):
         _ServiceMixin.__init__(self, service.endpoint)
 
-    def _request(self, query):
+    def _request(self, statement):
         """
         Builds the query string, then opens a connection to the endpoint
         and returns the file descriptor.
         """
         resultsType = 'xml'
 
-        query = self._queryString(query)
+        query = self._queryString(statement)
         if self.method == "GET":
             request = urllib2.Request(self.endpoint + "?" + query, None, self.headers())
         else:
@@ -462,23 +462,25 @@ class _Query(_ServiceMixin):
         # You can expect urllib2.URLError errors. This should be encapsulated
         return urllib2.urlopen(request)
 
-    def query(self, query):
-
-        response = self._request(query)
+    def query(self, statement):
+        """
+        Sends the request and starts the parser on the response.
+        """
+        response = self._request(statement)
         return _ResultsParser(response.fp)
 
-    def _queryString(self, query):
+    def _queryString(self, statement):
         """
-        Creates the REST query string from the query and graphs.
+        Creates the REST query string from the statement and graphs.
         """
         args = []
-        query = query.replace("\n", " ").encode('utf-8')
+        statement = statement.replace("\n", " ").encode('utf-8')
 
         pref = ' '.join(["PREFIX %s: <%s> " % (p, self._prefix_map[p]) for p in self._prefix_map])
 
-        query = pref + query
+        statement = pref + statement
 
-        args.append(('query', query))
+        args.append(('query', statement))
 
         for uri in self.defaultGraphs():
             args.append(('default-graph-uri', uri))
@@ -658,6 +660,10 @@ if __name__ == '__main__':
         _interactive(endpoint)
 
     q = sys.stdin.read()
-    result = query(endpoint, q)
-    for row in result.fetchone():
-        print "\t".join(map(unicode,row))
+    try:
+        result = query(endpoint, q)
+        for row in result.fetchone():
+            print "\t".join(map(unicode,row))
+    except urllib2.HTTPError, faultFp:
+        faultString = faultFp.read() # See http://docs.python.org/library/urllib2.html#urllib2.HTTPError
+        print >>sys.stderr, faultString
