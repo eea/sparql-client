@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.13 - (2012-09-11)
+-------------------
+* Change from HTTP POST to GET
+  [roug]
+
 0.12 - (unreleased)
 -------------------
 
