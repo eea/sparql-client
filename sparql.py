@@ -46,7 +46,7 @@ and then executes them. Use a double line (two 'enters') to separate queries.
 Otherwise, the query is read from standard input.
 """
 
-__version__ = '0.11'
+__version__ = '0.12'
 
 import copy
 
@@ -297,9 +297,9 @@ def parse_n3_term(src):
 # _ServiceMixin
 #
 #########################################
-class _ServiceMixin:
+class _ServiceMixin(object):
     def __init__(self, endpoint):
-        self._method = "POST"
+        self._method = "GET"
         self.endpoint = endpoint
         self._default_graphs = []
         self._named_graphs = []
@@ -312,6 +312,7 @@ class _ServiceMixin:
     def _setMethod(self, method):
         if method in ("GET", "POST"):
             self._method = method
+        else: raise ValueError("Only GET or POST is allowed")
 
     def _getMethod(self):
         return self._method
@@ -491,7 +492,7 @@ class _Query(_ServiceMixin):
         return urlencode(args)
 
 
-class _ResultsParser:
+class _ResultsParser(object):
     """
     Parse the XML result.
     """
