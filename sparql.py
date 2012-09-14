@@ -461,6 +461,7 @@ class _Query(_ServiceMixin):
 
         #TODO Handle exceptions
         # You can expect urllib2.URLError errors. This should be encapsulated
+
         return urllib2.urlopen(request)
 
     def query(self, statement):
@@ -468,7 +469,23 @@ class _Query(_ServiceMixin):
         Sends the request and starts the parser on the response.
         """
         response = self._request(statement)
-        return _ResultsParser(response.fp)
+        try:
+            res = _ResultsParser(response.fp)
+        except Exception:   #replace here with real parsererror
+            #redo query, this time we want the error from the endpoint
+            headers = self.headers().copy()
+            headers['Accept'] = 'text/plain'
+            query = self._queryString(statement)
+            if self.method == "GET":
+                request = urllib2.Request(self.endpoint + "?" + query, None, headers)
+            else:
+                request = urllib2.Request(self.endpoint, query, headers)
+
+            try:
+                response = urllib2.urlopen(request)
+            except urllib2.HTTPError, fp:
+                raise ValueError, fp.read()
+
 
     def _queryString(self, statement):
         """
