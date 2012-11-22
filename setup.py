@@ -1,6 +1,7 @@
+import os.path
 from distutils.core import setup
 
-from sparql import __version__ as version
+version = open(os.path.join('version.txt')).read().strip()
 
 docs = open('README.rst').read() + "\n\n" #+ open('CHANGES.rst').read()
 
