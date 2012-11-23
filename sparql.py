@@ -46,17 +46,19 @@ and then executes them. Use a double line (two 'enters') to separate queries.
 Otherwise, the query is read from standard input.
 """
 
-import copy
-
-import urllib2
-from urllib import urlencode
 from base64 import encodestring
 from string import replace
-import compiler
-import re
-import decimal
-
+from urllib import urlencode
 from xml.dom import pulldom
+import compiler
+import copy
+import decimal
+import os.path
+import re
+import urllib2
+
+
+__version__ = open(os.path.join('version.txt')).read().strip()
 
 USER_AGENT =  "sparql-client/%s +http://www.eionet.europa.eu/software/sparql-client/" % __version__
 
