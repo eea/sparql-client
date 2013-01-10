@@ -1,10 +1,12 @@
 Changelog
 =========
 
-0.14-dev - (unreleased)
+0.14 - (2013-01-10)
 -------------------
 * Bug fix: updated History.txt
   [ghicaale]
+* Buf fix: unit test
+  [moregale]
 
 0.13 - (2012-09-11)
 -------------------
