@@ -1,12 +1,11 @@
 import os.path
 from distutils.core import setup
 
-version = open(os.path.join('version.txt')).read().strip()
 
-docs = open('README.rst').read() + "\n\n" #+ open('CHANGES.rst').read()
+docs = open('README.rst').read() + "\n\n"
 
 setup(name='sparql-client',
-      version=version,
+      version='0.15-dev',
       classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Console',
