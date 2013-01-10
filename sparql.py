@@ -58,7 +58,7 @@ import re
 import urllib2
 
 
-__version__ = '0.15-dev'
+__version__ = '0.15'
 
 USER_AGENT =  "sparql-client/%s +http://www.eionet.europa.eu/software/sparql-client/" % __version__
 

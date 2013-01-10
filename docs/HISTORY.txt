@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.15-dev - (unreleased)
------------------------
+0.15 - (2013-01-10)
+-------------------
 * Packaging fix: inline contents of version.txt
   [moregale]
 

@@ -5,7 +5,7 @@ from distutils.core import setup
 docs = open('README.rst').read() + "\n\n"
 
 setup(name='sparql-client',
-      version='0.15-dev',
+      version='0.15',
       classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Console',
