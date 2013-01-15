@@ -10,9 +10,9 @@
 # IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
 # implied. See the License for the specific language governing
 # rights and limitations under the License.
-# 
+#
 # The Original Code is "SPARQL Client"
-# 
+#
 # The Initial Owner of the Original Code is European Environment
 # Agency (EEA).  Portions created by Eau de Web are
 # Copyright (C) 2011 by European Environment Agency.  All
@@ -58,7 +58,7 @@ import re
 import urllib2
 
 
-__version__ = '0.15'
+__version__ = '0.16'
 
 USER_AGENT =  "sparql-client/%s +http://www.eionet.europa.eu/software/sparql-client/" % __version__
 
@@ -67,13 +67,13 @@ CONTENT_TYPE = {
                  'n3' :"application/n3",
                  'rdfxml' : "application/rdf+xml" ,
                  'ntriples' : "application/n-triples" ,
-                 'xml' : "application/xml" 
+                 'xml' : "application/xml"
                 }
 
 
 RESULTS_TYPES = {
                  'xml' : "application/sparql-results+xml" ,
-                 'json' : "application/sparql-results+json" 
+                 'json' : "application/sparql-results+json"
                  }
 
 # The purpose of this construction is to use shared strings when
