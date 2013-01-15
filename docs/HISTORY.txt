@@ -3,6 +3,8 @@ Changelog
 
 0.15-dev - (unreleased)
 -----------------------
+* Bug fix: Strip the endpoint url
+  [szabozo0]
 
 0.14 - (2013-01-10)
 -------------------
