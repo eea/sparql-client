@@ -1,6 +1,11 @@
 Changelog
 =========
 
+unreleased
+----------
+* Bug fix: Strip the endpoint url
+  [szabozo0]
+
 0.15 - (2013-01-10)
 -------------------
 * Packaging fix: inline contents of version.txt

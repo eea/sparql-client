@@ -455,9 +455,9 @@ class _Query(_ServiceMixin):
 
         query = self._queryString(statement)
         if self.method == "GET":
-            request = urllib2.Request(self.endpoint + "?" + query, None, self.headers())
+            request = urllib2.Request(self.endpoint.strip() + "?" + query, None, self.headers())
         else:
-            request = urllib2.Request(self.endpoint, query, self.headers())
+            request = urllib2.Request(self.endpoint.strip(), query, self.headers())
 
         #TODO Handle exceptions
         # You can expect urllib2.URLError errors. This should be encapsulated
