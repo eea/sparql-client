@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.17-dev - (unreleased)
+-----------------------
+* Feature: Handle sparql errors
+  [szabozo0 #9608]
+
 0.16 - (2013-01-15)
 -------------------
 * Bug fix: Strip the endpoint url
