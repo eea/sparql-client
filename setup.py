@@ -1,11 +1,12 @@
-import os.path
+import os
 from distutils.core import setup
 
+NAME = 'sparql-client'
+VERSION = open('version.txt').read().strip()
 
-docs = open('README.rst').read() + "\n\n"
 
-setup(name='sparql-client',
-      version='0.16',
+setup(name=NAME,
+      version=VERSION,
       classifiers = [
         'Development Status :: 4 - Beta',
         'Environment :: Console',
@@ -19,7 +20,8 @@ setup(name='sparql-client',
         'Topic :: Software Development :: Libraries :: Python Modules',
       ],
       description='Python API to query a SPARQL endpoint',
-      long_description=docs,
+      long_description = open('README.rst').read() + "\n\n" +
+                         open(os.path.join("docs", "HISTORY.txt")).read(),
       author='Soren Roug',
       author_email='soren.roug@eea.europa.eu',
       url='http://www.eionet.europa.eu/software/sparql-client',
