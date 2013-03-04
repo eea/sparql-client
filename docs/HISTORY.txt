@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1-dev - (unreleased)
+------------------
+* Feature: Removed sparql error handling quickfix
+  [szabozo0 refs #13705]
+
 1.0 - (2013-01-28)
 ------------------
 * Feature: Handle sparql errors
