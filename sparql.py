@@ -455,7 +455,12 @@ class _Query(_ServiceMixin):
 
         query = self._queryString(statement)
         if self.method == "GET":
-            request = urllib2.Request(self.endpoint.strip() + "?" + query, None, self.headers())
+            if '?' in self.endpoint:
+                separator = '&'
+            else:
+                separator = '?'
+            uri = self.endpoint.strip() + separator + query
+            request = urllib2.Request(uri, None, self.headers())
         else:
             request = urllib2.Request(self.endpoint.strip(), query, self.headers())
 
