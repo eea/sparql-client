@@ -3,7 +3,7 @@ Changelog
 
 1.2-dev - (unreleased)
 ----------------------
-* Bugfix: Use pycurl instead of urllib2
+* Bugfix: Use pycurl instead of urllib2, added timeout functionality
   [szabozo0 refs #14349]
 
 1.1 - (2013-03-15)
