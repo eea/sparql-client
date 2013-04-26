@@ -55,9 +55,9 @@ import copy
 import decimal
 import os.path
 import re
-import urllib2
 
-
+import pycurl
+import StringIO
 __version__ = '0.17-dev'
 
 USER_AGENT =  "sparql-client/%s +http://www.eionet.europa.eu/software/sparql-client/" % __version__
@@ -364,9 +364,9 @@ class Service(_ServiceMixin):
         q._prefix_map = copy.deepcopy(self._prefix_map)
         return q
 
-    def query(self, query):
+    def query(self, query, timeout = 0):
         q = self.createQuery()
-        return q.query(query)
+        return q.query(query, timeout)
 
     def authenticate(self, username, password):
         self._headers_map['Authorization'] = "Basic %s" % replace(
@@ -446,7 +446,7 @@ class _Query(_ServiceMixin):
     def __init__(self, service):
         _ServiceMixin.__init__(self, service.endpoint)
 
-    def _request(self, statement):
+    def _request(self, statement, timeout = 0):
         """
         Builds the query string, then opens a connection to the endpoint
         and returns the file descriptor.
@@ -454,27 +454,48 @@ class _Query(_ServiceMixin):
         resultsType = 'xml'
 
         query = self._queryString(statement)
+        buf = StringIO.StringIO()
+
+        # Use pycurl for lower memory and cpu usage and for better timeout handling
+        pyc = pycurl.Curl()
+        headers = []
+        for key in self.headers().keys():
+            headers.append(key + ':' + self.headers()[key])
+        pyc.setopt(pycurl.HTTPHEADER, headers)
+        pyc.setopt(pycurl.WRITEFUNCTION, buf.write)
+        if (timeout > 0):
+            pyc.setopt(pycurl.TIMEOUT, timeout)
         if self.method == "GET":
             if '?' in self.endpoint:
                 separator = '&'
             else:
                 separator = '?'
             uri = self.endpoint.strip() + separator + query
-            request = urllib2.Request(uri, None, self.headers())
+            pyc.setopt(pycurl.URL, uri.encode('ASCII'))
         else:
-            request = urllib2.Request(self.endpoint.strip(), query, self.headers())
+            pyc.setopt(pycurl.URL, self.endpoint.strip().encode('ASCII'))
+            pyc.setopt(pycurl.POSTFIELDS, query)
 
         #TODO Handle exceptions
-        # You can expect urllib2.URLError errors. This should be encapsulated
+        try:
+            pyc.perform()
+        except pycurl.error, error:
+            buf.close()
+            raise SparqlException(error[0], error[1])
 
-        return urllib2.urlopen(request)
+        ret = buf.getvalue()
+        buf.close()
+        if (pyc.getinfo(pycurl.HTTP_CODE) != 200):
+            raise SparqlException(pyc.getinfo(pycurl.HTTP_CODE), ret)
 
-    def query(self, statement):
+        return ret
+
+    def query(self, statement, timeout = 0):
         """
         Sends the request and starts the parser on the response.
         """
-        response = self._request(statement)
-        return _ResultsParser(response.fp)
+        response = self._request(statement, timeout)
+        return _ResultsParser(response)
 
     def _queryString(self, statement):
         """
@@ -506,8 +527,8 @@ class _ResultsParser(object):
     __allow_access_to_unprotected_subobjects__ = {'fetchone': 1,
         'fetchmany': 1, 'fetchall': 1, 'hasresult': 1, 'variables': 1}
 
-    def __init__(self, fp):
-        self.__fp = fp
+    def __init__(self, xml):
+        self.__xml = xml
         self._vals = []
         self._hasResult = None
         self.variables = []
@@ -518,7 +539,7 @@ class _ResultsParser(object):
         Fetches the head information. If there are no variables in the
         <head>, then we also fetch the boolean result.
         """
-        self.events = pulldom.parse(self.__fp)
+        self.events = pulldom.parseString(self.__xml)
 
         for (event, node) in self.events:
             if event == pulldom.START_ELEMENT:
@@ -603,14 +624,14 @@ class _ResultsParser(object):
             if num <= 0: return result
         return result
 
-def query(endpoint, query):
+def query(endpoint, query, timeout = 0):
     """
     Convenient method to execute a query. Exactly equivalent to::
 
         sparql.Service(endpoint).query(query)
     """
     s = Service(endpoint)
-    return s.query(query)
+    return s.query(query, timeout)
 
 def _interactive(endpoint):
     while True:
@@ -638,6 +659,11 @@ def _interactive(endpoint):
             sys.stderr.write(str(e))
 
 
+class SparqlException(Exception):
+    """ Sparql Exceptions """
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
 
 if __name__ == '__main__':
     import sys
@@ -671,6 +697,7 @@ if __name__ == '__main__':
         result = query(endpoint, q)
         for row in result.fetchone():
             print "\t".join(map(unicode,row))
-    except urllib2.HTTPError, faultFp:
-        faultString = faultFp.read() # See http://docs.python.org/library/urllib2.html#urllib2.HTTPError
+    except SparqlException, e:
+        faultString = e.message
         print >>sys.stderr, faultString
+

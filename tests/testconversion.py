@@ -12,11 +12,13 @@ _dirname = os.path.dirname(__file__)
 class TestConversion(unittest.TestCase):
 
     def setUp(self):
-        self._fp = open(os.path.join(_dirname, "xsdtypes.srx"))
-        self.result = sparql._ResultsParser(self._fp)
+        fp = open(os.path.join(_dirname, "xsdtypes.srx"))
+        self._xml = fp.read()
+        fp.close()
+        self.result = sparql._ResultsParser(self._xml)
 
     def tearDown(self):
-        self._fp.close()
+        pass
 
     def test_date(self):
         """ Simple query with unbound variables """
