@@ -1,5 +1,6 @@
 import unittest
-import urllib2
+#import urllib2
+import pycurl
 from StringIO import StringIO
 from mock import Mock, patch
 import sparql
@@ -41,29 +42,41 @@ QUERIES = {
 """
 }
 
+class MockCurl(object):
+    def setopt(self, opt, value):
+        if opt == pycurl.WRITEFUNCTION:
+            self.writefunction = value
+        if opt == pycurl.URL:
+            self.url = value
 
-class MockSparql(object):
-
-    def start(self):
-        self.urllib2_patch = patch('sparql.urllib2')
-        mock_urllib2 = self.urllib2_patch.start()
-        mock_urllib2.Request = urllib2.Request
-        mock_urllib2.urlopen = self.mock_urlopen
-
-    def stop(self):
-        self.urllib2_patch.stop()
-
-    def mock_urlopen(self, request):
+    def perform(self):
         try:
             from urlparse import parse_qs
         except ImportError:
             from cgi import parse_qs
-        querystring = request.get_full_url().split('?', 1)[1]
+        querystring = self.url.split('?', 1)[1]
         query = parse_qs(querystring).get('query', [''])[0]
 
-        response = Mock()
-        response.fp = StringIO(QUERIES[query])
-        return response
+        self.writefunction(QUERIES[query])
+        return
+
+    def getinfo(self, info):
+        return 200
+
+class MockSparql(object):
+
+    def start(self):
+        self.pycurl_patch = patch('sparql.pycurl')
+        mock_pycurl = self.pycurl_patch.start()
+        mock_pycurl.Curl = self.mock_Curl
+        mock_pycurl.WRITEFUNCTION = pycurl.WRITEFUNCTION
+        mock_pycurl.URL = pycurl.URL
+
+    def stop(self):
+        self.pycurl_patch.stop()
+
+    def mock_Curl(self):
+        return MockCurl()
 
 
 class TestSparqlEndpoint(unittest.TestCase):

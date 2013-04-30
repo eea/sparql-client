@@ -29,4 +29,8 @@ setup(name=NAME,
       author_email='soren.roug@eea.europa.eu',
       url='http://www.eionet.europa.eu/software/sparql-client',
       py_modules =['sparql'],
+      install_requires=[
+          'pycurl',
+      ],
+
       )
