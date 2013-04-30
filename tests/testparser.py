@@ -5,8 +5,11 @@ import unittest
 import sparql
 import os.path
 
-def _open_datafile(name):
-    return open(os.path.join(os.path.dirname(__file__), name))
+def _load_datafile(name):
+    fp = open(os.path.join(os.path.dirname(__file__), name))
+    result = fp.read()
+    fp.close()
+    return result
 
 XSD_FAO_MILLION = "http://aims.fao.org/aos/geopolitical.owl#MillionUSD"
 
@@ -14,8 +17,8 @@ class TestParser(unittest.TestCase):
 
     def test_simple(self):
         """ Simple query with unbound variables """
-        resultfp = _open_datafile("countries.srx")
-        result = sparql._ResultsParser(resultfp)
+        resultXML = _load_datafile("countries.srx")
+        result = sparql._ResultsParser(resultXML)
         self.assertEqual([u'eeaURI', u'gdpTotal', u'eeacode', u'nutscode', u'faocode', u'gdp', u'name'], result.variables)
 
         rows = result.fetchall()
@@ -25,8 +28,8 @@ class TestParser(unittest.TestCase):
         self.assertEqual(sparql.Literal("44.252934", sparql.XSD_FLOAT), row0[5])
 
     def test_unpack(self):
-        resultfp = _open_datafile("countries.srx")
-        result = sparql._ResultsParser(resultfp)
+        resultXML = _load_datafile("countries.srx")
+        result = sparql._ResultsParser(resultXML)
         self.assertEqual([u'eeaURI', u'gdpTotal', u'eeacode', u'nutscode', u'faocode', u'gdp', u'name'], result.variables)
 
         rows = map(sparql.unpack_row, result.fetchall())
@@ -40,8 +43,8 @@ class TestParser(unittest.TestCase):
 
     def test_fetchmany(self):
         """ Simple query with unbound variables """
-        resultfp = _open_datafile("countries.srx")
-        result = sparql._ResultsParser(resultfp)
+        resultXML = _load_datafile("countries.srx")
+        result = sparql._ResultsParser(resultXML)
         self.assertEqual([u'eeaURI', u'gdpTotal', u'eeacode', u'nutscode', u'faocode', u'gdp', u'name'], result.variables)
 
         rows = result.fetchmany(2)
@@ -55,8 +58,8 @@ class TestParser(unittest.TestCase):
 
     def test_ask_query(self):
         """ Check that http://www.w3.org/TR/rdf-sparql-XMLres/output2.srx works """
-        resultfp = _open_datafile("w3-output2.srx")
-        result = sparql._ResultsParser(resultfp)
+        resultXML = _load_datafile("w3-output2.srx")
+        result = sparql._ResultsParser(resultXML)
         rows = result.fetchall()
         assert len(rows) == 0
 
@@ -68,8 +71,8 @@ class TestParser(unittest.TestCase):
 
     def test_w3_example(self):
         """ Check that http://www.w3.org/TR/rdf-sparql-XMLres/output.srx works """
-        resultfp = _open_datafile("w3-output.srx")
-        result = sparql._ResultsParser(resultfp)
+        resultXML = _load_datafile("w3-output.srx")
+        result = sparql._ResultsParser(resultXML)
         self.assertEqual([u'x', u'hpage', u'name', u'mbox', u'age', u'blurb', u'friend'], result.variables)
         rows = result.fetchall()
         row0 = rows[0]
@@ -77,14 +80,14 @@ class TestParser(unittest.TestCase):
 
     def test_hasresult(self):
         """ Check that http://www.w3.org/TR/rdf-sparql-XMLres/output2.srx works """
-        resultfp = _open_datafile("w3-output2.srx")
-        result = sparql._ResultsParser(resultfp)
+        resultXML = _load_datafile("w3-output2.srx")
+        result = sparql._ResultsParser(resultXML)
         assert result.hasresult() == True
 
     def test_national(self):
         """ Simple query with UTF-8 """
-        resultfp = _open_datafile("national.srx")
-        result = sparql._ResultsParser(resultfp)
+        resultXML = _load_datafile("national.srx")
+        result = sparql._ResultsParser(resultXML)
         self.assertEqual([u'subj', u'nameen', u'nameru'], result.variables)
 
         rows = result.fetchall()
@@ -97,8 +100,8 @@ class TestParser(unittest.TestCase):
         # `xml.dom.pulldom` may return several text nodes within a single
         # binding. This seems to be triggered especially by entities, e.g.
         # "&lt;".
-        resultfp = _open_datafile("big_text.srx")
-        result = sparql._ResultsParser(resultfp)
+        resultXML = _load_datafile("big_text.srx")
+        result = sparql._ResultsParser(resultXML)
         row0 = result.fetchall()[0]
         self.assertEqual("multiple<br>paragraphs<br>here", row0[0].value)
         self.assertEqual("http://example.com/", row0[1].value)
