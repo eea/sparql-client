@@ -30,7 +30,7 @@ setup(name=NAME,
       url='http://www.eionet.europa.eu/software/sparql-client',
       py_modules =['sparql'],
       install_requires=[
-          'pycurl',
+          'pycurl2',
       ],
 
       )

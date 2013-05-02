@@ -56,7 +56,7 @@ import decimal
 import os.path
 import re
 
-import pycurl
+import pycurl2 as pycurl
 import StringIO
 __version__ = '0.17-dev'
 
