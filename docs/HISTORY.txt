@@ -3,6 +3,9 @@ Changelog
 
 1.2-dev - (unreleased)
 ----------------------
+* Upgrade step:
+    - install system dependency libcurl3-dev (Debian/Ubuntu) / curl-devel (CentOS)
+   [szabozo0 refs #14349]
 * Change: Use pycurl2 instead of pycurl
   [szabozo0 refs #14349]
 * Bugfix: Use pycurl instead of urllib2, added timeout functionality
