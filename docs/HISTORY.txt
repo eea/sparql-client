@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.2-dev - (unreleased)
-----------------------
+1.2 - (2013-05-20)
+------------------
 * Upgrade step:
     - install system dependency libcurl3-dev (Debian/Ubuntu) / curl-devel (CentOS)
    [szabozo0 refs #14349]
