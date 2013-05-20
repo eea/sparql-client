@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.3-dev - (unreleased)
-----------------------
+1.3 - (2013-05-20)
+------------------
 * Bug fix: fixed ReST merkup under HISTORY.txt
   [ghicaale refs #14554]
 
