@@ -55,6 +55,7 @@ import copy
 import decimal
 import os.path
 import re
+import tempfile
 
 import pycurl2 as pycurl
 import StringIO
@@ -454,7 +455,7 @@ class _Query(_ServiceMixin):
         resultsType = 'xml'
 
         query = self._queryString(statement)
-        buf = StringIO.StringIO()
+        buf = tempfile.NamedTemporaryFile()
 
         # Use pycurl for lower memory and cpu usage and for better timeout handling
         pyc = pycurl.Curl()
@@ -483,12 +484,14 @@ class _Query(_ServiceMixin):
             buf.close()
             raise SparqlException(error[0], error[1])
 
-        ret = buf.getvalue()
-        buf.close()
         if (pyc.getinfo(pycurl.HTTP_CODE) != 200):
+            buf.seek(0)
+            ret = buf.read()
+            buf.close()
             raise SparqlException(pyc.getinfo(pycurl.HTTP_CODE), ret)
 
-        return ret
+        buf.seek(0)
+        return buf
 
     def query(self, statement, timeout = 0):
         """
@@ -527,19 +530,22 @@ class _ResultsParser(object):
     __allow_access_to_unprotected_subobjects__ = {'fetchone': 1,
         'fetchmany': 1, 'fetchall': 1, 'hasresult': 1, 'variables': 1}
 
-    def __init__(self, xml):
-        self.__xml = xml
+    def __init__(self, fp):
+        self.__fp = fp
         self._vals = []
         self._hasResult = None
         self.variables = []
         self._fetchhead()
+
+    def __del__(self):
+        self.__fp.close()
 
     def _fetchhead(self):
         """
         Fetches the head information. If there are no variables in the
         <head>, then we also fetch the boolean result.
         """
-        self.events = pulldom.parseString(self.__xml)
+        self.events = pulldom.parse(self.__fp)
 
         for (event, node) in self.events:
             if event == pulldom.START_ELEMENT:
