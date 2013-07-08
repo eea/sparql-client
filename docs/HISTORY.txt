@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.4-dev - (unreleased)
-----------------------
+1.4 - (2013-07-08)
+------------------
 * Bugfix: Use a temporary file for parsing instead of using a huge string
   [szabozo0 refs #14826]
 
