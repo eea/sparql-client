@@ -299,8 +299,8 @@ def parse_n3_term(src):
 #
 #########################################
 class _ServiceMixin(object):
-    def __init__(self, endpoint):
-        self._method = "GET"
+    def __init__(self, endpoint, method = "GET"):
+        self._method = method
         self.endpoint = endpoint
         self._default_graphs = []
         self._named_graphs = []
@@ -353,8 +353,8 @@ class Service(_ServiceMixin):
     The user creates a :class:`Service`, then sends a query to it.
     If we want to have persistent connections, then open them here.
     """
-    def __init__(self, endpoint, qs_encoding = "utf-8"):
-        _ServiceMixin.__init__(self, endpoint)
+    def __init__(self, endpoint, qs_encoding = "utf-8", method = "GET"):
+        _ServiceMixin.__init__(self, endpoint, method)
         self.qs_encoding = qs_encoding
 
     def createQuery(self):
@@ -630,13 +630,13 @@ class _ResultsParser(object):
             if num <= 0: return result
         return result
 
-def query(endpoint, query, timeout = 0):
+def query(endpoint, query, timeout = 0, qs_encoding = "utf-8", method = "GET"):
     """
     Convenient method to execute a query. Exactly equivalent to::
 
         sparql.Service(endpoint).query(query)
     """
-    s = Service(endpoint)
+    s = Service(endpoint, qs_encoding, method)
     return s.query(query, timeout)
 
 def _interactive(endpoint):

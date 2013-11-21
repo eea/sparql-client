@@ -3,6 +3,9 @@ Changelog
 
 1.5-dev - (unreleased)
 ----------------------
+* Feature: added "method" as a parameter for query() and now we can use
+  either GET or POST methods
+  [ghicaale refs #14491]
 
 1.4 - (2013-07-08)
 ------------------

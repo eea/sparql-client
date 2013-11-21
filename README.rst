@@ -14,7 +14,7 @@ API
 
 First you open a connection to the endpoint::
 
-    s = sparql.Service(endpoint)
+    s = sparql.Service(endpoint, "utf-8", "GET")
 
 Then you make the query::
 
