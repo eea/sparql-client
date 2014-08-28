@@ -299,7 +299,7 @@ def parse_n3_term(src):
 #
 #########################################
 class _ServiceMixin(object):
-    def __init__(self, endpoint, method = "GET"):
+    def __init__(self, endpoint, method = "POST"):
         self._method = method
         self.endpoint = endpoint
         self._default_graphs = []
