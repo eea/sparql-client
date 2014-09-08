@@ -353,7 +353,7 @@ class Service(_ServiceMixin):
     The user creates a :class:`Service`, then sends a query to it.
     If we want to have persistent connections, then open them here.
     """
-    def __init__(self, endpoint, qs_encoding = "utf-8", method = "GET"):
+    def __init__(self, endpoint, qs_encoding = "utf-8", method = "POST"):
         _ServiceMixin.__init__(self, endpoint, method)
         self.qs_encoding = qs_encoding
 
@@ -630,7 +630,7 @@ class _ResultsParser(object):
             if num <= 0: return result
         return result
 
-def query(endpoint, query, timeout = 0, qs_encoding = "utf-8", method = "GET"):
+def query(endpoint, query, timeout = 0, qs_encoding = "utf-8", method = "POST"):
     """
     Convenient method to execute a query. Exactly equivalent to::
 
