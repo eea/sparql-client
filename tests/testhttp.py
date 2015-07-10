@@ -1,6 +1,6 @@
 import unittest
 #import urllib2
-import pycurl2 as pycurl
+import pycurl
 from StringIO import StringIO
 from mock import Mock, patch
 import sparql
