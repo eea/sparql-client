@@ -57,7 +57,7 @@ import os.path
 import re
 import tempfile
 
-import pycurl2 as pycurl
+import pycurl
 import StringIO
 __version__ = '0.17-dev'
 

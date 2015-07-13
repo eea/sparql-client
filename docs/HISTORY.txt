@@ -3,6 +3,8 @@ Changelog
 
 1.7-dev - (unreleased)
 ----------------------
+* Change: Use pycurl instead of pycurl2 (unmaintained)
+  [david-batranu refs #25721]
 
 1.6 - (2014-09-15)
 ------------------
