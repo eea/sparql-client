@@ -57,7 +57,8 @@ import os.path
 import re
 import tempfile
 
-import pycurl
+import eventlet
+from eventlet.green import urllib2
 import StringIO
 __version__ = '0.17-dev'
 
@@ -457,38 +458,41 @@ class _Query(_ServiceMixin):
         query = self._queryString(statement)
         buf = tempfile.NamedTemporaryFile()
 
-        # Use pycurl for lower memory and cpu usage and for better timeout handling
-        pyc = pycurl.Curl()
-        headers = []
-        for key in self.headers().keys():
-            headers.append(key + ':' + self.headers()[key])
-        pyc.setopt(pycurl.HTTPHEADER, headers)
-        pyc.setopt(pycurl.WRITEFUNCTION, buf.write)
-        if (timeout > 0):
-            pyc.setopt(pycurl.TIMEOUT, timeout)
+
+        opener = urllib2.build_opener()
+        opener.addheaders = self.headers().items()
+
         if self.method == "GET":
             if '?' in self.endpoint:
                 separator = '&'
             else:
                 separator = '?'
             uri = self.endpoint.strip() + separator + query
-            pyc.setopt(pycurl.URL, uri.encode('ASCII'))
+            request = urllib2.Request(uri.encode('ASCII'))
         else:
-            pyc.setopt(pycurl.URL, self.endpoint.strip().encode('ASCII'))
-            pyc.setopt(pycurl.POSTFIELDS, query)
+            uri = self.endpoint.strip().encode('ASCII')
+            request = urllib2.Request(uri, data=query)
 
-        #TODO Handle exceptions
         try:
-            pyc.perform()
-        except pycurl.error, error:
-            buf.close()
-            raise SparqlException(error[0], error[1])
+            response = opener.open(request)
+            response_code = response.getcode()
+            if response_code != 200:
+                buf.seek(0)
+                ret = buf.read()
+                buf.close()
+                raise SparqlException(response_code, ret)
+        except Exception, error:
+            raise SparqlException(error.getcode(), error.reason)
 
-        if (pyc.getinfo(pycurl.HTTP_CODE) != 200):
-            buf.seek(0)
-            ret = buf.read()
-            buf.close()
-            raise SparqlException(pyc.getinfo(pycurl.HTTP_CODE), ret)
+
+        if timeout > 0:
+            with eventlet.timeout.Timeout(timeout):
+                try:
+                    buf.write(response.read())
+                except Timeout, error:
+                    raise SparqlException('Timeout', repr(error))
+        else:
+            buf.write(response.read())
 
         buf.seek(0)
         return buf
