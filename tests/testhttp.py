@@ -1,8 +1,4 @@
 import unittest
-#import urllib2
-import pycurl
-from StringIO import StringIO
-from mock import Mock, patch
 import sparql
 
 QUERIES = {
@@ -42,51 +38,34 @@ QUERIES = {
 """
 }
 
-class MockCurl(object):
-    def setopt(self, opt, value):
-        if opt == pycurl.WRITEFUNCTION:
-            self.writefunction = value
-        if opt == pycurl.URL:
-            self.url = value
 
-    def perform(self):
+class MockResponse(object):
+    def getcode(self):
+        return 200
+
+
+class MockQuery(sparql._Query):
+    def _get_response(self, opener, request, buf):
+        self.querystring = request.get_data()
+        return MockResponse()
+
+    def _read_response(self, response, buf, timeout):
         try:
             from urlparse import parse_qs
         except ImportError:
             from cgi import parse_qs
-        querystring = self.url.split('?', 1)[1]
-        query = parse_qs(querystring).get('query', [''])[0]
-
-        self.writefunction(QUERIES[query])
-        return
-
-    def getinfo(self, info):
-        return 200
-
-class MockSparql(object):
-
-    def start(self):
-        self.pycurl_patch = patch('sparql.pycurl')
-        mock_pycurl = self.pycurl_patch.start()
-        mock_pycurl.Curl = self.mock_Curl
-        mock_pycurl.WRITEFUNCTION = pycurl.WRITEFUNCTION
-        mock_pycurl.URL = pycurl.URL
-
-    def stop(self):
-        self.pycurl_patch.stop()
-
-    def mock_Curl(self):
-        return MockCurl()
+        query = parse_qs(self.querystring).get('query', [''])[0]
+        buf.write(QUERIES[query])
 
 
 class TestSparqlEndpoint(unittest.TestCase):
 
     def setUp(self):
-        self.mock_sparql = MockSparql()
-        self.mock_sparql.start()
+        self.old_Query = sparql._Query
+        sparql._Query = MockQuery
 
     def tearDown(self):
-        self.mock_sparql.stop()
+        sparql._Query = self.old_Query
 
     def test_simple_query(self):
         from sparql import IRI
@@ -102,3 +81,7 @@ class TestSparqlEndpoint(unittest.TestCase):
             (IRI(URI_LANG+'/en'), IRI(URI_TYPE), IRI(URI_LANG_TYPE)),
             (IRI(URI_LANG+'/da'), IRI(URI_TYPE), IRI(URI_LANG_TYPE)),
         ])
+
+
+if __name__ == '__main__':
+    unittest.main()

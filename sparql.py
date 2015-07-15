@@ -21,6 +21,7 @@
 # Contributor(s):
 #  Søren Roug, EEA
 #  Alex Morega, Eau de Web
+#  David Bătrânu, Eau de Web
 
 """
 The `sparql` module can be invoked in several different ways. To quickly run a
@@ -59,6 +60,7 @@ import tempfile
 
 import eventlet
 from eventlet.green import urllib2
+
 import StringIO
 __version__ = '0.17-dev'
 
@@ -448,6 +450,42 @@ class _Query(_ServiceMixin):
     def __init__(self, service):
         _ServiceMixin.__init__(self, service.endpoint)
 
+    def _build_request(self, query):
+        if self.method == "GET":
+            if '?' in self.endpoint:
+                separator = '&'
+            else:
+                separator = '?'
+            uri = self.endpoint.strip() + separator + query
+            return urllib2.Request(uri.encode('ASCII'))
+        else:
+            uri = self.endpoint.strip().encode('ASCII')
+            return urllib2.Request(uri, data=query)
+
+    def _get_response(self, opener, request, buf):
+        try:
+            response = opener.open(request)
+            response_code = response.getcode()
+            if response_code != 200:
+                buf.seek(0)
+                ret = buf.read()
+                buf.close()
+                raise SparqlException(response_code, ret)
+            else:
+                return response
+        except Exception, error:
+            raise SparqlException(error.getcode(), error.reason)
+
+    def _read_response(self, response, buf, timeout):
+        if timeout > 0:
+            with eventlet.timeout.Timeout(timeout):
+                try:
+                    buf.write(response.read())
+                except Timeout, error:
+                    raise SparqlException('Timeout', repr(error))
+        else:
+            buf.write(response.read())
+
     def _request(self, statement, timeout = 0):
         """
         Builds the query string, then opens a connection to the endpoint
@@ -458,41 +496,14 @@ class _Query(_ServiceMixin):
         query = self._queryString(statement)
         buf = tempfile.NamedTemporaryFile()
 
-
         opener = urllib2.build_opener()
         opener.addheaders = self.headers().items()
 
-        if self.method == "GET":
-            if '?' in self.endpoint:
-                separator = '&'
-            else:
-                separator = '?'
-            uri = self.endpoint.strip() + separator + query
-            request = urllib2.Request(uri.encode('ASCII'))
-        else:
-            uri = self.endpoint.strip().encode('ASCII')
-            request = urllib2.Request(uri, data=query)
+        request = self._build_request(query)
 
-        try:
-            response = opener.open(request)
-            response_code = response.getcode()
-            if response_code != 200:
-                buf.seek(0)
-                ret = buf.read()
-                buf.close()
-                raise SparqlException(response_code, ret)
-        except Exception, error:
-            raise SparqlException(error.getcode(), error.reason)
+        response = self._get_response(opener, request, buf)
 
-
-        if timeout > 0:
-            with eventlet.timeout.Timeout(timeout):
-                try:
-                    buf.write(response.read())
-                except Timeout, error:
-                    raise SparqlException('Timeout', repr(error))
-        else:
-            buf.write(response.read())
+        self._read_response(response, buf, timeout)
 
         buf.seek(0)
         return buf
