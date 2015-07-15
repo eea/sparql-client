@@ -21,6 +21,7 @@
 # Contributor(s):
 #  Søren Roug, EEA
 #  Alex Morega, Eau de Web
+#  David Bătrânu, Eau de Web
 
 """
 The `sparql` module can be invoked in several different ways. To quickly run a
@@ -57,7 +58,9 @@ import os.path
 import re
 import tempfile
 
-import pycurl
+import eventlet
+from eventlet.green import urllib2
+
 import StringIO
 __version__ = '0.17-dev'
 
@@ -447,6 +450,42 @@ class _Query(_ServiceMixin):
     def __init__(self, service):
         _ServiceMixin.__init__(self, service.endpoint)
 
+    def _build_request(self, query):
+        if self.method == "GET":
+            if '?' in self.endpoint:
+                separator = '&'
+            else:
+                separator = '?'
+            uri = self.endpoint.strip() + separator + query
+            return urllib2.Request(uri.encode('ASCII'))
+        else:
+            uri = self.endpoint.strip().encode('ASCII')
+            return urllib2.Request(uri, data=query)
+
+    def _get_response(self, opener, request, buf):
+        try:
+            response = opener.open(request)
+            response_code = response.getcode()
+            if response_code != 200:
+                buf.seek(0)
+                ret = buf.read()
+                buf.close()
+                raise SparqlException(response_code, ret)
+            else:
+                return response
+        except Exception, error:
+            raise SparqlException(error.getcode(), error.reason)
+
+    def _read_response(self, response, buf, timeout):
+        if timeout > 0:
+            with eventlet.timeout.Timeout(timeout):
+                try:
+                    buf.write(response.read())
+                except Timeout, error:
+                    raise SparqlException('Timeout', repr(error))
+        else:
+            buf.write(response.read())
+
     def _request(self, statement, timeout = 0):
         """
         Builds the query string, then opens a connection to the endpoint
@@ -457,38 +496,14 @@ class _Query(_ServiceMixin):
         query = self._queryString(statement)
         buf = tempfile.NamedTemporaryFile()
 
-        # Use pycurl for lower memory and cpu usage and for better timeout handling
-        pyc = pycurl.Curl()
-        headers = []
-        for key in self.headers().keys():
-            headers.append(key + ':' + self.headers()[key])
-        pyc.setopt(pycurl.HTTPHEADER, headers)
-        pyc.setopt(pycurl.WRITEFUNCTION, buf.write)
-        if (timeout > 0):
-            pyc.setopt(pycurl.TIMEOUT, timeout)
-        if self.method == "GET":
-            if '?' in self.endpoint:
-                separator = '&'
-            else:
-                separator = '?'
-            uri = self.endpoint.strip() + separator + query
-            pyc.setopt(pycurl.URL, uri.encode('ASCII'))
-        else:
-            pyc.setopt(pycurl.URL, self.endpoint.strip().encode('ASCII'))
-            pyc.setopt(pycurl.POSTFIELDS, query)
+        opener = urllib2.build_opener()
+        opener.addheaders = self.headers().items()
 
-        #TODO Handle exceptions
-        try:
-            pyc.perform()
-        except pycurl.error, error:
-            buf.close()
-            raise SparqlException(error[0], error[1])
+        request = self._build_request(query)
 
-        if (pyc.getinfo(pycurl.HTTP_CODE) != 200):
-            buf.seek(0)
-            ret = buf.read()
-            buf.close()
-            raise SparqlException(pyc.getinfo(pycurl.HTTP_CODE), ret)
+        response = self._get_response(opener, request, buf)
+
+        self._read_response(response, buf, timeout)
 
         buf.seek(0)
         return buf
