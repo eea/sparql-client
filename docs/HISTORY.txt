@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.7-dev - (unreleased)
-----------------------
+1.7 - (2015-07-28)
+------------------
 * Change: Replace pycurl2 with eventlet
   [david-batranu refs #25721]
 
