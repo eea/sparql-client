@@ -13,7 +13,11 @@ opener = urllib2.build_opener(urllib2.HTTPHandler)
 urllib2.install_opener(opener)
 req = urllib2.Request(url)
 #req.add_header("Accept", "application/xml")
-conn = urllib2.urlopen(req)
+
+try:
+    conn = urllib2.urlopen(req, timeout=10)
+except Exception:
+    conn = None
 
 if not conn:
     raise IOError, "Failure in open"

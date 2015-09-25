@@ -3,6 +3,8 @@ Changelog
 
 1.8.dev0 - (unreleased)
 -----------------------
+* BugFix: set socket timeout to prevent Zope instances hanging out when the external service is not responding
+  [lucas refs #29063]
 
 1.7 - (2015-07-28)
 ------------------
