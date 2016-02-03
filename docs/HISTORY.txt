@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.9 - (2016-02-03)
-------------------
+2.0.dev0 - (unreleased)
+-----------------------
 * Bug fix: fix timeout exception call now that we have moved to eventlet
   [ichim-david refs #17334]
 
