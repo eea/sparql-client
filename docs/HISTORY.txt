@@ -3,6 +3,8 @@ Changelog
 
 2.0.dev0 - (unreleased)
 -----------------------
+* Bug fix: fixed error reporting when running query
+  [alecghica refs #68990]
 
 1.9 - (2016-02-01)
 ------------------
