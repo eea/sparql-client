@@ -110,4 +110,3 @@ Changelog
 ------------------
 * First version available on PyPI
   [roug, moregale]
-
