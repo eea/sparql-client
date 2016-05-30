@@ -366,6 +366,7 @@ class Service(_ServiceMixin):
         q._headers_map = copy.deepcopy(self._headers_map)
         q._named_graphs = copy.deepcopy(self._named_graphs)
         q._prefix_map = copy.deepcopy(self._prefix_map)
+        q._method = self._method
         return q
 
     def query(self, query, timeout = 0):
