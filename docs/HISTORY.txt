@@ -1,8 +1,8 @@
 Changelog
 =========
 
-2.1.dev0 - (unreleased)
------------------------
+2.1 - (2016-06-02)
+------------------
 * Bugfix: Fix passing of method from service to query
 
 2.0 - (2016-04-18)
@@ -111,3 +111,4 @@ Changelog
 ------------------
 * First version available on PyPI
   [roug, moregale]
+
