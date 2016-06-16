@@ -1,6 +1,9 @@
 Changelog
 =========
 
+2.3.dev0 - (unreleased)
+-----------------------
+
 2.2 - (2016-06-16)
 ------------------
 * Feature: Fix Comment in sparql queries
