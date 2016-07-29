@@ -62,7 +62,7 @@ import eventlet
 from eventlet.green import urllib2
 
 import StringIO
-__version__ = '0.17-dev'
+__version__ = open('version.txt').read().strip()
 
 USER_AGENT =  "sparql-client/%s +http://www.eionet.europa.eu/software/sparql-client/" % __version__
 
@@ -520,7 +520,7 @@ class _Query(_ServiceMixin):
         Creates the REST query string from the statement and graphs.
         """
         args = []
-        # refs #72876 removing the replace of newline to allow the comments in sparql queries 
+        # refs #72876 removing the replace of newline to allow the comments in sparql queries
         #statement = statement.replace("\n", " ").encode('utf-8')
         statement = statement.encode('utf-8')
 

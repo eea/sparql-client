@@ -3,6 +3,8 @@ Changelog
 
 2.4.dev0 - (unreleased)
 -----------------------
+* Bug fix: Read __version__ from version.txt
+  [voineali refs #74283]
 
 2.3 - (2016-07-19)
 ------------------
