@@ -1,8 +1,8 @@
 Changelog
 =========
 
-2.5.dev0 - (unreleased)
------------------------
+2.5 - (2016-07-29)
+------------------
 * Bug fix: Safely get __version__ from version.txt
   [voineali refs #74283]
 
