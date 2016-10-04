@@ -63,7 +63,7 @@ from eventlet.green import urllib2
 try:
     __version__ = open('version.txt').read().strip()
 except Exception:
-    __version__ = "2.5"
+    __version__ = "2.6"
 
 USER_AGENT =  "sparql-client/%s +http://www.eionet.europa.eu/software/sparql-client/" % __version__
 
