@@ -54,14 +54,12 @@ from xml.dom import pulldom
 import compiler
 import copy
 import decimal
-import os.path
 import re
 import tempfile
 
 import eventlet
 from eventlet.green import urllib2
 
-import StringIO
 try:
     __version__ = open('version.txt').read().strip()
 except Exception:
@@ -465,9 +463,9 @@ class _Query(_ServiceMixin):
             uri = self.endpoint.strip().encode('ASCII')
             return urllib2.Request(uri, data=query)
 
-    def _get_response(self, opener, request, buf):
+    def _get_response(self, opener, request, buf, timeout=None):
         try:
-            response = opener.open(request)
+            response = opener.open(request, timeout=timeout)
             response_code = response.getcode()
             if response_code != 200:
                 buf.seek(0)
@@ -489,13 +487,11 @@ class _Query(_ServiceMixin):
         else:
             buf.write(response.read())
 
-    def _request(self, statement, timeout = 0):
+    def _request(self, statement, timeout=0):
         """
         Builds the query string, then opens a connection to the endpoint
         and returns the file descriptor.
         """
-        resultsType = 'xml'
-
         query = self._queryString(statement)
         buf = tempfile.NamedTemporaryFile()
 
@@ -503,15 +499,15 @@ class _Query(_ServiceMixin):
         opener.addheaders = self.headers().items()
 
         request = self._build_request(query)
-
-        response = self._get_response(opener, request, buf)
+        response = self._get_response(opener, request, buf,
+                                      timeout if timeout > 0 else None)
 
         self._read_response(response, buf, timeout)
 
         buf.seek(0)
         return buf
 
-    def query(self, statement, timeout = 0):
+    def query(self, statement, timeout=0):
         """
         Sends the request and starts the parser on the response.
         """
