@@ -45,7 +45,7 @@ class MockResponse(object):
 
 
 class MockQuery(sparql._Query):
-    def _get_response(self, opener, request, buf):
+    def _get_response(self, opener, request, buf, timeout):
         self.querystring = request.get_data()
         return MockResponse()
 
