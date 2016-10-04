@@ -1,6 +1,9 @@
 Changelog
 =========
 
+2.7.dev0 - (unreleased)
+-----------------------
+
 2.6 - (2016-10-04)
 ------------------
 * Change: added timeout parameter for _get_response
