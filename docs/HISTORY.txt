@@ -1,8 +1,8 @@
 Changelog
 =========
 
-2.7.dev0 - (unreleased)
------------------------
+2.7 - (2017-04-24)
+------------------
 * Change: updated package information
   [eduard-fironda]
 
