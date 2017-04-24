@@ -4,7 +4,7 @@ Changelog
 2.7.dev0 - (unreleased)
 -----------------------
 * Change: updated package information
-[eduard-fironda]
+  [eduard-fironda]
 
 2.6 - (2016-10-04)
 ------------------
