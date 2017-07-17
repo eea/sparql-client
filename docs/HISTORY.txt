@@ -3,6 +3,9 @@ Changelog
 
 2.8.dev0 - (unreleased)
 -----------------------
+* Change: Added sparql export method formats (xml, xmlschema, json) to be stored
+  and retrieved from cache
+  [zoltan_andras refs #86464]
 
 2.7 - (2017-04-24)
 ------------------

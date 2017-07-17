@@ -78,6 +78,7 @@ CONTENT_TYPE = {
 
 RESULTS_TYPES = {
                  'xml' : "application/sparql-results+xml" ,
+                 'xmlschema' : "application/x-ms-access-export+xml",
                  'json' : "application/sparql-results+json"
                  }
 
@@ -303,7 +304,7 @@ def parse_n3_term(src):
 #
 #########################################
 class _ServiceMixin(object):
-    def __init__(self, endpoint, method = "POST"):
+    def __init__(self, endpoint, method="POST", accept=RESULTS_TYPES['xml']):
         self._method = method
         self.endpoint = endpoint
         self._default_graphs = []
@@ -311,7 +312,7 @@ class _ServiceMixin(object):
         self._prefix_map = {}
 
         self._headers_map = {}
-        self._headers_map['Accept'] = RESULTS_TYPES['xml']
+        self._headers_map['Accept'] = accept
         self._headers_map['User-Agent'] = USER_AGENT
 
     def _setMethod(self, method):
@@ -357,8 +358,9 @@ class Service(_ServiceMixin):
     The user creates a :class:`Service`, then sends a query to it.
     If we want to have persistent connections, then open them here.
     """
-    def __init__(self, endpoint, qs_encoding = "utf-8", method = "POST"):
-        _ServiceMixin.__init__(self, endpoint, method)
+    def __init__(self, endpoint, qs_encoding = "utf-8", method = "POST",
+                 accept = "application/sparql-results+xml"):
+        _ServiceMixin.__init__(self, endpoint, method, accept)
         self.qs_encoding = qs_encoding
 
     def createQuery(self):
@@ -369,9 +371,9 @@ class Service(_ServiceMixin):
         q._prefix_map = copy.deepcopy(self._prefix_map)
         return q
 
-    def query(self, query, timeout = 0):
+    def query(self, query, timeout = 0, raw=False):
         q = self.createQuery()
-        return q.query(query, timeout)
+        return q.query(query, timeout, raw=raw)
 
     def authenticate(self, username, password):
         self._headers_map['Authorization'] = "Basic %s" % replace(
@@ -507,11 +509,14 @@ class _Query(_ServiceMixin):
         buf.seek(0)
         return buf
 
-    def query(self, statement, timeout=0):
+    def query(self, statement, timeout=0, raw=False):
         """
         Sends the request and starts the parser on the response.
         """
         response = self._request(statement, timeout)
+        if raw:
+            return response
+
         return _ResultsParser(response)
 
     def _queryString(self, statement):
@@ -646,14 +651,15 @@ class _ResultsParser(object):
             if num <= 0: return result
         return result
 
-def query(endpoint, query, timeout = 0, qs_encoding = "utf-8", method = "POST"):
+def query(endpoint, query, timeout=0, qs_encoding="utf-8", method="POST",
+          accept="application/sparql-results+xml", raw=False):
     """
     Convenient method to execute a query. Exactly equivalent to::
 
         sparql.Service(endpoint).query(query)
     """
-    s = Service(endpoint, qs_encoding, method)
-    return s.query(query, timeout)
+    s = Service(endpoint, qs_encoding, method, accept)
+    return s.query(query, timeout, raw=raw)
 
 def _interactive(endpoint):
     while True:
