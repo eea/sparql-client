@@ -12,28 +12,37 @@ pipeline {
 
           "WWW": {
             node(label: 'docker-1.13') {
-              sh '''
-NAME="$BUILD_TAG-www"
-docker run -i --net=host --name="$NAME" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" eeacms/www-devel /debug.sh bin/test -v -vv -s $GIT_NAME
-docker rm -v $NAME'''
+              script {
+                try {
+                  sh '''docker run -i --net=host --name="$BUILD_TAG-www" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" eeacms/www-devel /debug.sh bin/test -v -vv -s $GIT_NAME'''
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-www'''
+                }
+              }
             }
           },
 
           "KGS": {
             node(label: 'docker-1.13') {
-              sh '''
-NAME="$BUILD_TAG-kgs"
-docker run -i --net=host --name="$NAME" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" eeacms/kgs-devel /debug.sh bin/test --test-path /plone/instance/src/$GIT_NAME -v -vv -s $GIT_NAME
-docker rm -v $NAME'''
+              script {
+                try {
+                  sh '''docker run -i --net=host --name="$BUILD_TAG-kgs" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" eeacms/kgs-devel /debug.sh bin/test --test-path /plone/instance/src/$GIT_NAME -v -vv -s $GIT_NAME'''
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-kgs'''
+                }
+              }
             }
           },
 
           "Plone4": {
             node(label: 'docker-1.13') {
-              sh '''
-NAME="$BUILD_TAG-plone4"
-docker run -i --net=host --name="$NAME" -v /plone/instance/parts -e GIT_BRANCH="$BRANCH_NAME" -e ADDONS="$GIT_NAME" -e DEVELOP="src/$GIT_NAME" eeacms/plone-test:4 -v -vv -s $GIT_NAME
-docker rm -v $NAME'''
+              script {
+                try {
+                  sh '''docker run -i --net=host --name="$BUILD_TAG-plone4" -v /plone/instance/parts -e GIT_BRANCH="$BRANCH_NAME" -e ADDONS="$GIT_NAME" -e DEVELOP="src/$GIT_NAME" eeacms/plone-test:4 -v -vv -s $GIT_NAME'''
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-plone4'''
+                }
+              }
             }
           }
         )
@@ -48,14 +57,9 @@ docker rm -v $NAME'''
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''
-NAME="$BUILD_TAG-zptlint"
-GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME"
-docker run -i --net=host --name="$NAME" -e GIT_SRC="$GIT_SRC" eeacms/zptlint
-docker rm -v $NAME'''
-                } catch (err) {
-                  echo "Unstable: ${err}"
-                  throw err
+                  sh '''docker run -i --net=host --name="$BUILD_TAG-zptlint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME" eeacms/zptlint'''
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-zptlint'''
                 }
               }
             }
@@ -65,14 +69,9 @@ docker rm -v $NAME'''
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''
-NAME="$BUILD_TAG-jslint"
-GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME"
-docker run -i --net=host --name="$NAME" -e GIT_SRC="$GIT_SRC" eeacms/jslint4java
-docker rm -v $NAME'''
-                } catch (err) {
-                  echo "Unstable: ${err}"
-                  throw err
+                  sh '''docker run -i --net=host --name="$BUILD_TAG-jslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME" eeacms/jslint4java'''
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-jslint'''
                 }
               }
             }
@@ -82,14 +81,9 @@ docker rm -v $NAME'''
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''
-NAME="$BUILD_TAG-pyflakes"
-GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME"
-docker run -i --net=host --name="$NAME" -e GIT_SRC="$GIT_SRC" eeacms/pyflakes
-docker rm -v $NAME'''
-                } catch (err) {
-                  echo "Unstable: ${err}"
-                  throw err
+                  sh '''docker run -i --net=host --name="$BUILD_TAG-pyflakes" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME" eeacms/pyflakes'''
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-pyflakes'''
                 }
               }
             }
@@ -99,14 +93,9 @@ docker rm -v $NAME'''
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''
-NAME="$BUILD_TAG-i18n"
-GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME"
-docker run -i --net=host --name=$NAME -e GIT_SRC="$GIT_SRC" eeacms/i18ndude
-docker rm -v $NAME'''
-                } catch (err) {
-                  echo "Unstable: ${err}"
-                  throw err
+                  sh '''docker run -i --net=host --name=$BUILD_TAG-i18n -e GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME" eeacms/i18ndude'''
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-i18n'''
                 }
               }
             }
@@ -123,13 +112,11 @@ docker rm -v $NAME'''
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''
-NAME="$BUILD_TAG-jshint"
-GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME"
-docker run -i --net=host --name="$NAME" -e GIT_SRC="$GIT_SRC" eeacms/jshint
-docker rm -v $NAME'''
+                  sh '''docker run -i --net=host --name="$BUILD_TAG-jshint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME" eeacms/jshint'''
                 } catch (err) {
                   echo "Unstable: ${err}"
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-jshint'''
                 }
               }
             }
@@ -139,13 +126,11 @@ docker rm -v $NAME'''
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''
-NAME="$BUILD_TAG-csslint"
-GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME"
-docker run -i --net=host --name="$NAME" -e GIT_SRC="$GIT_SRC" eeacms/csslint
-docker rm -v $NAME'''
+                  sh '''docker run -i --net=host --name="$BUILD_TAG-csslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME" eeacms/csslint'''
                 } catch (err) {
                   echo "Unstable: ${err}"
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-csslint'''
                 }
               }
             }
@@ -155,30 +140,25 @@ docker rm -v $NAME'''
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''
-NAME="$BUILD_TAG-pep8"
-GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME"
-docker run -i --net=host --name="$NAME" -e GIT_SRC="$GIT_SRC" eeacms/pep8
-docker rm -v $NAME'''
+                  sh '''docker run -i --net=host --name="$BUILD_TAG-pep8" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME" eeacms/pep8'''
                 } catch (err) {
                   echo "Unstable: ${err}"
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-pep8'''
                 }
               }
             }
           },
 
-
           "PyLint": {
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''
-NAME="$BUILD_TAG-pylint"
-GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME"
-docker run -i --net=host --name="$NAME" -e GIT_SRC="$GIT_SRC" eeacms/pylint
-docker rm -v $NAME'''
+                  sh '''docker run -i --net=host --name="$BUILD_TAG-pylint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git --branch=$BRANCH_NAME" eeacms/pylint'''
                 } catch (err) {
                   echo "Unstable: ${err}"
+                } finally {
+                  sh '''docker rm -v $BUILD_TAG-pylint'''
                 }
               }
             }
@@ -212,4 +192,4 @@ docker rm -v $NAME'''
       }
     }
   }
-}            
+}
