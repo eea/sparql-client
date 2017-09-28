@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys, os
-
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx']
 
 templates_path = ['_templates']

@@ -20,7 +20,7 @@ class TestConversion(unittest.TestCase):
 
     def test_date(self):
         """ Simple query with unbound variables """
-        import dateutil # make sure python-dateutil is installed
+        # import dateutil # make sure python-dateutil is installed
         self.assertEqual([u'name', u'decimalData', u'lastupdated',
                           u'foundingDate', u'timeexample'],
                          self.result.variables)
