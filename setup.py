@@ -27,5 +27,10 @@ setup(name=NAME,
       install_requires=[
           'eventlet',
       ],
+      extras_require={
+            'test': [
+                'mock',
+            ]
+      },
 
       )
