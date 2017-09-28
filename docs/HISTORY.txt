@@ -3,6 +3,8 @@ Changelog
 
 2.9.dev0 - (unreleased)
 -----------------------
+* Change: Changed the projects tests structure in order to make the tests work
+  [petchesi-iulian refs #88509]
 
 2.8 - (2017-08-16)
 ------------------
