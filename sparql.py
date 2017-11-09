@@ -51,6 +51,7 @@ from base64 import encodestring
 from string import replace
 from urllib import urlencode
 from xml.dom import pulldom
+from xml.sax import SAXParseException
 import compiler
 import copy
 import decimal
@@ -608,31 +609,37 @@ class _ResultsParser(object):
         """
         idx = -1
 
-        for (event, node) in self.events:
-            if event == pulldom.START_ELEMENT:
-                if node.tagName == 'result':
-                    self._vals = [None] *  len(self.variables)
-                elif node.tagName == 'binding':
-                    idx = self.variables.index(node.attributes['name'].value)
-                elif node.tagName == 'uri':
-                    self.events.expandNode(node)
-                    data = ''.join(t.data for t in node.childNodes)
-                    self._vals[idx] = IRI(data)
-                elif node.tagName == 'literal':
-                    self.events.expandNode(node)
-                    data = ''.join(t.data for t in node.childNodes)
-                    lang = node.getAttribute('xml:lang') or None
-                    datatype = Datatype(node.getAttribute('datatype')) or None
-                    self._vals[idx] = Literal(data, datatype, lang)
-                elif node.tagName == 'bnode':
-                    self.events.expandNode(node)
-                    data = ''.join(t.data for t in node.childNodes)
-                    self._vals[idx] = BlankNode(data)
+        try:
+            for (event, node) in self.events:
+                if event == pulldom.START_ELEMENT:
+                    if node.tagName == 'result':
+                        self._vals = [None] *  len(self.variables)
+                    elif node.tagName == 'binding':
+                        idx = self.variables.index(node.attributes['name'].value)
+                    elif node.tagName == 'uri':
+                        self.events.expandNode(node)
+                        data = ''.join(t.data for t in node.childNodes)
+                        self._vals[idx] = IRI(data)
+                    elif node.tagName == 'literal':
+                        self.events.expandNode(node)
+                        data = ''.join(t.data for t in node.childNodes)
+                        lang = node.getAttribute('xml:lang') or None
+                        datatype = Datatype(node.getAttribute('datatype')) or None
+                        self._vals[idx] = Literal(data, datatype, lang)
+                    elif node.tagName == 'bnode':
+                        self.events.expandNode(node)
+                        data = ''.join(t.data for t in node.childNodes)
+                        self._vals[idx] = BlankNode(data)
+                elif event == pulldom.END_ELEMENT:
+                    if node.tagName == 'result':
+                        #print "rtn:", len(self._vals), self._vals
+                        yield tuple(self._vals)
+        except SAXParseException, e:
+            import sys
 
-            elif event == pulldom.END_ELEMENT:
-                if node.tagName == 'result':
-                    #print "rtn:", len(self._vals), self._vals
-                    yield tuple(self._vals)
+            faultString = 'The data is ' + e.message
+            print >>sys.stderr, faultString
+            yield tuple()
 
     def fetchall(self):
         """ Loop through the result to build up a list of all rows.

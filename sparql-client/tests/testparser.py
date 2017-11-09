@@ -4,6 +4,8 @@
 import unittest
 import sparql
 import os.path
+from mock import patch
+from xml.dom import pulldom
 
 def _open_datafile(name):
     return open(os.path.join(os.path.dirname(__file__), name))
@@ -103,6 +105,19 @@ class TestParser(unittest.TestCase):
         self.assertEqual("multiple<br>paragraphs<br>here", row0[0].value)
         self.assertEqual("http://example.com/", row0[1].value)
         self.assertEqual("bnode.id", row0[2].value)
+
+    def side_effect_fetchhead():
+        fp = _open_datafile("invalid-result.srx")
+        return pulldom.parse(fp)
+
+    @patch('sparql._ResultsParser._fetchhead', side_effect=side_effect_fetchhead)
+    def test_invalid_fetchone(self, mocked_element):
+        """ Simple query with invalid characters """
+        resultfp = _open_datafile("invalid-result.srx")
+        result = sparql._ResultsParser(resultfp)
+        setattr(result, 'events', result._fetchhead())
+        for row in result.fetchone():
+          print row
 
 
 if __name__ == '__main__':

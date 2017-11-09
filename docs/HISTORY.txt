@@ -3,6 +3,9 @@ Changelog
 
 3.0.dev0 - (unreleased)
 -----------------------
+* Change: Added handler for SAXParseException and wrote a test in order to
+  cover this exception
+  [petchesi-iulian refs #88573]
 
 2.9 - (2017-09-29)
 ------------------

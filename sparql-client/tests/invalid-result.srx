@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sparql xmlns='http://www.w3.org/2005/sparql-results#'>
+	<head>
+		<variable name='uri'/>
+		<variable name='title'/>
+		<variable name='created'/>
+		<variable name='modified'/>
+		<variable name='published'/>
+		<variable name='language'/>
+		<variable name='translation_of_uri'/>
+		<variable name='mps_code'/>
+		<variable name='serial_title'/>
+		<variable name='description'/>
+		<variable name='type_uri'/>
+		<variable name='isbn'/>
+		<variable name='prod_id'/>
+		<variable name='indicator_codes'/>
+		<variable name='manager_user_id'/>
+	</head>
+	<results>
+		<result>
+			<binding name='manager_user_id'>
+				<literal xml:lang='en'>barbuanc</literal>
+			</binding>
+			<binding name='type_uri'>
+				<uri>http://www.eea.europa.eu/portal_types/Assessment#Assessment</uri>
+			</binding>
+			<binding name='mps_code'>
+				<literal xml:lang='en'>2011 2.8.1</literal>
+			</binding>
+			<binding name='prod_id'>
+				<literal>IND-305-en</literal>
+			</binding>
+			<binding name='indicator_codes'>
+				<literal>ENER025</literal>
+			</binding>
+			<binding name='uri'>
+				<uri>http://www.eea.europa.eu/data-and-maps/indicators/energy-efficiency-and-energy-consumption-6/assessment</uri>
+			</binding>
+			<binding name='modified'>
+				<literal datatype='http://www.w3.org/2001/XMLSchema#dateTime'>2015-09-04T19:00:02Z</literal>
+			</binding>
+			<binding name='title'>
+				<literal xml:lang='en'>Energy efficiency and energy consumption in industry</literal>
+			</binding>
+			<binding name='created'>
+				<literal datatype='http://www.w3.org/2001/XMLSchema#dateTime'>2012-04-11T15:18:19Z</literal>
+			</binding>
+			<binding name='description'>
+				<literal xml:lang='en'> Over the period 1990-2009, in EU-27 countries, energy efficiency in industry has improved by 30% at an annual average rate of 1.8% per year, with large differences among countries. Energy efficiency improvement has been realized in all industrial branches except textile. Over the period 2005-2009 energy efficiency improved by 1.5%/year with an important deterioration in 2009 due to the economic crisis. </literal>
+			</binding>
+			<binding name='language'>
+				<literal>en</literal>
+			</binding>
+			<binding name='published'>
+				<literal datatype='http://www.w3.org/2001/XMLSchema#dateTime'>2012-04-11T15:28:20Z</literal>
+			</binding>
+		</result>
+		<result>
+			<binding name='manager_user_id'>
+				<literal xml:lang='en'>vedludia</literal>
+			</binding>
+			<binding name='type_uri'>
+				<uri>http://www.eea.europa.eu/portal_types/Assessment#Assessment</uri>
+			</binding>
+			<binding name='mps_code'>
+				<literal xml:lang='en'>2016 1.1.2</literal>
+			</binding>
+			<binding name='prod_id'>
+				<literal>IND-35-en</literal>
+			</binding>
+			<binding name='indicator_codes'>
+				<literal>CSI035, TERM012</literal>
+			</binding>
+			<binding name='uri'>
+				<uri>http://www.eea.europa.eu/data-and-maps/indicators/passenger-transport-demand-version-2/assessment-6</uri>
+			</binding>
+			<binding name='modified'>
+				<literal datatype='http://www.w3.org/2001/XMLSchema#dateTime'>2017-08-23T10:21:54Z</literal>
+			</binding>
+			<binding name='title'>
+				<literal xml:lang='en'>Passenger transport demand</literal>
+			</binding>
+			<binding name='created'>
+				<literal datatype='http://www.w3.org/2001/XMLSchema#dateTime'>2016-09-28T10:02:20Z</literal>
+			</binding>
+			<binding name='description'>
+				<literal xml:lang='en'> 
+  Passenger transport demand in the EU-28 increased by 1.8 % between 2013 and 2014, after an overall downward trend since its peak in 2009. Car passenger travel remains the dominant transport mode accounting for well over 70 % of total transport. Air transport demand grew by 4 % in 2014 and has a modal share of 9 % (the same as before the economic recession). Rail passenger travel is stable, accounting for 6.5 % of transport demand in 2014.  
+  Land-  based   passenger transport demand also grew in the other EEA member countries. Growth in 2014 compared with the previous year was 5.1 % in Iceland ,  3.2 % in Norway,    3.1 % in Turkey and 1.8 % in   Switzerland  .  
+ </literal>
+			</binding>
+			<binding name='language'>
+				<literal>en</literal>
+			</binding>
+			<binding name='published'>
+				<literal datatype='http://www.w3.org/2001/XMLSchema#dateTime'>2016-12-01T10:03:43Z</literal>
+			</binding>
+		</result>
+	</results>
+</sparql>
