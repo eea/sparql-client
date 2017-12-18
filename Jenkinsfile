@@ -12,99 +12,57 @@ pipeline {
 
           "WWW": {
             node(label: 'docker-1.13') {
-              script {
-                try {
-                  sh '''docker run -i --name="$BUILD_TAG-www" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/www-devel /debug.sh bin/test -v -vv -s $GIT_NAME'''
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-www'''
-                }
-              }
+              sh '''docker run -i --rm --name="$BUILD_TAG-www" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/www-devel /debug.sh bin/test -v -vv -s $GIT_NAME'''
             }
           },
 
           "KGS": {
             node(label: 'docker-1.13') {
-              script {
-                try {
-                  sh '''docker run -i --name="$BUILD_TAG-kgs" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/kgs-devel /debug.sh bin/test --test-path /plone/instance/src/$GIT_NAME -v -vv -s $GIT_NAME'''
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-kgs'''
-                }
-              }
+              sh '''docker run -i --rm --name="$BUILD_TAG-kgs" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/kgs-devel /debug.sh bin/test --test-path /plone/instance/src/$GIT_NAME -v -vv -s $GIT_NAME'''
             }
           },
 
           "Plone4": {
             node(label: 'docker-1.13') {
-              script {
-                try {
-                  sh '''docker run -i --name="$BUILD_TAG-plone4" -e GIT_BRANCH="$BRANCH_NAME" -e ADDONS="${GIT_NAME}[test]" -e DEVELOP="src/$GIT_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/plone-test:4 -v -vv -s $GIT_NAME'''
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-plone4'''
-                }
-              }
+              sh '''docker run -i --rm --name="$BUILD_TAG-plone4" -e GIT_BRANCH="$BRANCH_NAME" -e ADDONS="$GIT_NAME" -e DEVELOP="src/$GIT_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/plone-test:4 -v -vv -s $GIT_NAME'''
             }
           }
         )
       }
     }
 
-    stage('Code Analysis') {
+    stage('Code') {
       steps {
         parallel(
 
           "ZPT Lint": {
             node(label: 'docker-1.13') {
-              script {
-                try {
-                  sh '''docker run -i --name="$BUILD_TAG-zptlint" -e GIT_BRANCH="$BRANCH_NAME" -e ADDONS="$GIT_NAME" -e DEVELOP="src/$GIT_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/plone-test:4 zptlint'''
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-zptlint'''
-                }
-              }
+              sh '''docker run -i --rm --name="$BUILD_TAG-zptlint" -e GIT_BRANCH="$BRANCH_NAME" -e ADDONS="$GIT_NAME" -e DEVELOP="src/$GIT_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/plone-test:4 zptlint'''
             }
           },
 
           "JS Lint": {
             node(label: 'docker-1.13') {
-              script {
-                try {
-                  sh '''docker run -i --name="$BUILD_TAG-jslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jslint4java'''
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-jslint'''
-                }
-              }
+              sh '''docker run -i --rm --name="$BUILD_TAG-jslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jslint4java'''
             }
           },
 
           "PyFlakes": {
             node(label: 'docker-1.13') {
-              script {
-                try {
-                  sh '''docker run -i --name="$BUILD_TAG-pyflakes" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pyflakes'''
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-pyflakes'''
-                }
-              }
+              sh '''docker run -i --rm --name="$BUILD_TAG-pyflakes" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pyflakes'''
             }
           },
 
           "i18n": {
             node(label: 'docker-1.13') {
-              script {
-                try {
-                  sh '''docker run -i --name=$BUILD_TAG-i18n -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/i18ndude'''
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-i18n'''
-                }
-              }
+              sh '''docker run -i --rm --name=$BUILD_TAG-i18n -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/i18ndude'''
             }
           }
         )
       }
     }
 
-    stage('Code Syntax') {
+    stage('Cosmetics') {
       steps {
         parallel(
 
@@ -112,11 +70,9 @@ pipeline {
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''docker run -i --name="$BUILD_TAG-jshint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jshint'''
+                  sh '''docker run -i --rm --name="$BUILD_TAG-jshint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jshint'''
                 } catch (err) {
                   echo "Unstable: ${err}"
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-jshint'''
                 }
               }
             }
@@ -126,11 +82,9 @@ pipeline {
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''docker run -i --name="$BUILD_TAG-csslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/csslint'''
+                  sh '''docker run -i --rm --name="$BUILD_TAG-csslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/csslint'''
                 } catch (err) {
                   echo "Unstable: ${err}"
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-csslint'''
                 }
               }
             }
@@ -140,11 +94,9 @@ pipeline {
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''docker run -i --name="$BUILD_TAG-pep8" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pep8'''
+                  sh '''docker run -i --rm --name="$BUILD_TAG-pep8" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pep8'''
                 } catch (err) {
                   echo "Unstable: ${err}"
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-pep8'''
                 }
               }
             }
@@ -154,11 +106,9 @@ pipeline {
             node(label: 'docker-1.13') {
               script {
                 try {
-                  sh '''docker run -i --name="$BUILD_TAG-pylint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pylint'''
+                  sh '''docker run -i --rm --name="$BUILD_TAG-pylint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pylint'''
                 } catch (err) {
                   echo "Unstable: ${err}"
-                } finally {
-                  sh '''docker rm -v $BUILD_TAG-pylint'''
                 }
               }
             }
@@ -167,6 +117,8 @@ pipeline {
         )
       }
     }
+
+#-#
 
   }
 
