@@ -12,25 +12,25 @@ pipeline {
         parallel(
 
           "ZPT Lint": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               sh '''docker run -i --rm --name="$BUILD_TAG-zptlint" -e GIT_BRANCH="$BRANCH_NAME" -e ADDONS="$GIT_NAME" -e DEVELOP="src/$GIT_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/plone-test:4 zptlint'''
             }
           },
 
           "JS Lint": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               sh '''docker run -i --rm --name="$BUILD_TAG-jslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jslint4java'''
             }
           },
 
           "PyFlakes": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               sh '''docker run -i --rm --name="$BUILD_TAG-pyflakes" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pyflakes'''
             }
           },
 
           "i18n": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               sh '''docker run -i --rm --name=$BUILD_TAG-i18n -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/i18ndude'''
             }
           }
@@ -43,19 +43,19 @@ pipeline {
         parallel(
 
           "WWW": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               sh '''docker run -i --rm --name="$BUILD_TAG-www" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/www-devel /debug.sh bin/test -v -vv -s $GIT_NAME'''
             }
           },
 
           "KGS": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               sh '''docker run -i --rm --name="$BUILD_TAG-kgs" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/kgs-devel /debug.sh bin/test --test-path /plone/instance/src/$GIT_NAME -v -vv -s $GIT_NAME'''
             }
           },
 
           "Plone4": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               sh '''docker run -i --rm --name="$BUILD_TAG-plone4" -e GIT_BRANCH="$BRANCH_NAME" -e ADDONS="$GIT_NAME[test]" -e DEVELOP="src/$GIT_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/plone-test:4 -v -vv -s $GIT_NAME'''
             }
           }
@@ -68,7 +68,7 @@ pipeline {
         parallel(
 
           "JS Hint": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               script {
                 try {
                   sh '''docker run -i --rm --name="$BUILD_TAG-jshint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jshint'''
@@ -80,7 +80,7 @@ pipeline {
           },
 
           "CSS Lint": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               script {
                 try {
                   sh '''docker run -i --rm --name="$BUILD_TAG-csslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/csslint'''
@@ -92,7 +92,7 @@ pipeline {
           },
 
           "PEP8": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               script {
                 try {
                   sh '''docker run -i --rm --name="$BUILD_TAG-pep8" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pep8'''
@@ -104,7 +104,7 @@ pipeline {
           },
 
           "PyLint": {
-            node(label: 'docker-1.13') {
+            node(label: 'docker') {
               script {
                 try {
                   sh '''docker run -i --rm --name="$BUILD_TAG-pylint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pylint'''
@@ -127,7 +127,7 @@ pipeline {
         environment name: 'CHANGE_TARGET', value: 'master'
       }
       steps {
-        node(label: 'docker-1.13') {
+        node(label: 'docker') {
           script {
             if ( env.CHANGE_BRANCH != "develop" &&  !( env.CHANGE_BRANCH.startsWith("hotfix")) ) {
                 error "Pipeline aborted due to PR not made from develop or hotfix branch"
@@ -146,7 +146,7 @@ pipeline {
         }
       }
       steps {
-        node(label: 'docker-1.13') {
+        node(label: 'docker') {
           withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'eea-jenkins', usernameVariable: 'EGGREPO_USERNAME', passwordVariable: 'EGGREPO_PASSWORD'],string(credentialsId: 'eea-jenkins-token', variable: 'GITHUB_TOKEN'),[$class: 'UsernamePasswordMultiBinding', credentialsId: 'pypi-jenkins', usernameVariable: 'PYPI_USERNAME', passwordVariable: 'PYPI_PASSWORD']]) {
             sh '''docker run -i --rm --name="$BUILD_TAG-gitflow-master" -e GIT_BRANCH="$BRANCH_NAME" -e EGGREPO_USERNAME="$EGGREPO_USERNAME" -e EGGREPO_PASSWORD="$EGGREPO_PASSWORD" -e GIT_NAME="$GIT_NAME"  -e PYPI_USERNAME="$PYPI_USERNAME"  -e PYPI_PASSWORD="$PYPI_PASSWORD" -e GIT_ORG="$GIT_ORG" -e GIT_TOKEN="$GITHUB_TOKEN" eeacms/gitflow'''
           }
