@@ -1,8 +1,12 @@
 **************************
 SPARQL HTTP client library
 **************************
-.. image:: http://ci.eionet.europa.eu/job/eea/job/sparql-client/job/master/badge/icon
-  :target: http://ci.eionet.europa.eu/job/eea/job/sparql-client/job/master/display/redirect
+.. image:: https://ci.eionet.europa.eu/buildStatus/icon?job=eea/sparql-client/develop
+  :target: https://ci.eionet.europa.eu/job/eea/job/sparql-client/job/develop/display/redirect
+  :alt: develop
+.. image:: https://ci.eionet.europa.eu/buildStatus/icon?job=eea/sparql-client/master
+  :target: https://ci.eionet.europa.eu/job/eea/job/sparql-client/job/master/display/redirect
+  :alt: master
 
 `sparql-client` is a library to query a SPARQL endpoint. It will automatically
 convert literals to the coresponding Python types.
