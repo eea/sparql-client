@@ -66,7 +66,7 @@ try:
 except Exception:
     __version__ = "2.6"
 
-USER_AGENT =  "sparql-client/%s +http://www.eionet.europa.eu/software/sparql-client/" % __version__
+USER_AGENT =  "sparql-client/%s +https://www.eionet.europa.eu/software/sparql-client/" % __version__
 
 CONTENT_TYPE = {
                  'turtle' : "application/turtle" ,
