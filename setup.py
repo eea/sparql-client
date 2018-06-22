@@ -10,19 +10,21 @@ VERSION = open('version.txt').read().strip()
 
 setup(name=NAME,
       version=VERSION,
+      description='Python API to query a SPARQL endpoint',
+      long_description = open('README.rst').read() + "\n\n" +
+                         open(os.path.join("docs", "HISTORY.txt")).read(),
       classifiers=[
         'Environment :: Console',
         'Intended Audience :: Developers',
         "Programming Language :: Python",
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules',
-      ],  
-      description='Python API to query a SPARQL endpoint',
-      long_description = open('README.rst').read() + "\n\n" +
-                         open(os.path.join("docs", "HISTORY.txt")).read(),
+      ],
+      keywords="Sparql Client",
       author='European Environment Agency: IDM2 A-Team',
       author_email='eea-edw-a-team-alerts@googlegroups.com',
       url='https://github.com/eea/sparql-client',
+      license="MPL",
       py_modules =['sparql'],
       install_requires=[
           'eventlet',
