@@ -1,6 +1,9 @@
 Changelog
 =========
 
+3.3-dev0 - (unreleased)
+---------------------
+
 3.2 - (2018-06-22)
 -----------------------
 * Change: updated URLs pointing to eea.europa.eu with https://
@@ -167,4 +170,3 @@ Changelog
 ------------------
 * First version available on PyPI
   [roug, moregale]
-
