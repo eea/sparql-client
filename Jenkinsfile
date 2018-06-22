@@ -3,6 +3,7 @@ pipeline {
 
   environment {
         GIT_NAME = "sparql-client"
+        GIT_VERSIONFILE = "version.txt"
     }
 
   stages {
