@@ -3,6 +3,9 @@ Changelog
 
 3.3-dev0 - (unreleased)
 ---------------------
+* Feature: when building the request from an endpoint that followed redirects
+  the query works fine now
+  [alecghica refs #100666]
 
 3.2 - (2018-06-22)
 -----------------------

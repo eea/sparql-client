@@ -490,6 +490,11 @@ class _Query(_ServiceMixin):
         else:
             buf.write(response.read())
 
+    def _build_response(self, query, opener, buf, timeout):
+        request = self._build_request(query)
+        return self._get_response(opener, request, buf,
+                                      timeout if timeout > 0 else None)
+
     def _request(self, statement, timeout=0):
         """
         Builds the query string, then opens a connection to the endpoint
@@ -498,12 +503,14 @@ class _Query(_ServiceMixin):
         query = self._queryString(statement)
         buf = tempfile.NamedTemporaryFile()
 
-        opener = urllib2.build_opener()
+        opener = urllib2.build_opener(RedirectHandler)
         opener.addheaders = self.headers().items()
 
-        request = self._build_request(query)
-        response = self._get_response(opener, request, buf,
-                                      timeout if timeout > 0 else None)
+        try:
+            response = self._build_response(query, opener, buf, timeout)
+        except SparqlException, error:
+            self.endpoint = error.message
+            response = self._build_response(query, opener, buf, timeout)
 
         self._read_response(response, buf, timeout)
 
@@ -542,6 +549,17 @@ class _Query(_ServiceMixin):
             args.append(('named-graph-uri', uri))
 
         return urlencode(args)
+
+
+class RedirectHandler(urllib2.HTTPRedirectHandler):
+    """
+    Subclass the HTTPRedirectHandler to re-contruct request when follow redirect
+    """
+    def redirect_request(self, req, fp, code, msg, headers, newurl): 
+        if code in (301, 302, 303, 307):
+            raise SparqlException(code, newurl)
+        else:
+            return req
 
 
 class _ResultsParser(object):
