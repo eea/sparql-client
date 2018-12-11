@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.3 - (2018-12-11)
+---------------------
+* Feature: when building the request from an endpoint that followed redirects
+  the query works fine now
+  [alecghica refs #100666]
+
 3.2 - (2018-06-22)
 -----------------------
 * Change: updated URLs pointing to eea.europa.eu with https://
@@ -167,4 +173,3 @@ Changelog
 ------------------
 * First version available on PyPI
   [roug, moregale]
-
