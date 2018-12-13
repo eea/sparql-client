@@ -7,24 +7,21 @@ pipeline {
     }
 
   stages {
-    stage('SonarQube analysis') {
-      steps {
-        node(label: 'swarm'){
-          script {
-          // requires SonarQube Scanner 2.8+
-          def scannerHome = tool 'SonarQubeScanner';
-          withSonarQubeEnv('Sonarqube Dev') {
-            sh "${scannerHome}/bin/sonar-scanner sonar.sources=."
-          }
-	       }
-        }
-      }
-    }	   
-    
+
     stage('Code') {
       steps {
         parallel(
-
+		 
+          "SonarQube analysis": {
+             node(label: 'swarm'){
+                 // requires SonarQube Scanner 2.8+
+                 def scannerHome = tool 'SonarQubeScanner';
+                 withSonarQubeEnv('Sonarqube Dev') {
+                   sh "${scannerHome}/bin/sonar-scanner"
+                 }
+            }
+          },   
+		
           "ZPT Lint": {
             node(label: 'docker') {
               sh '''docker run -i --rm --name="$BUILD_TAG-zptlint" -e GIT_BRANCH="$BRANCH_NAME" -e ADDONS="$GIT_NAME" -e DEVELOP="src/$GIT_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/plone-test:4 zptlint'''
