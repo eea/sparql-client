@@ -19,7 +19,7 @@ pipeline {
                  // requires SonarQube Scanner 2.8+
                  def scannerHome = tool 'SonarQubeScanner';
                  withSonarQubeEnv('Sonarqube Dev') {
-                   sh "${scannerHome}/bin/sonar-scanner"
+                   sh "${scannerHome}/bin/sonar-scanner -Dsonar.sources=. -Dsonar.projectKey=$GIT_NAME"
                  }
 	       }
             }
