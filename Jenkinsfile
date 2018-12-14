@@ -15,6 +15,7 @@ pipeline {
           "SonarQube analysis": {
              node(label: 'swarm'){
 	       script{    
+		 checkout scm
                  // requires SonarQube Scanner 2.8+
                  def scannerHome = tool 'SonarQubeScanner';
                  withSonarQubeEnv('Sonarqube Dev') {
