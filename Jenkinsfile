@@ -14,14 +14,16 @@ pipeline {
 		 
           "SonarQube analysis": {
              node(label: 'swarm'){
-	       script{    
-		 checkout scm
-                 // requires SonarQube Scanner 2.8+
-                 def scannerHome = tool 'SonarQubeScanner';
-                 withSonarQubeEnv('Sonarqube Dev') {
-                   sh "${scannerHome}/bin/sonar-scanner -Dsonar.sources=. -Dsonar.projectKey=$GIT_NAME -Dsonar.projectVersion=$BUILD_TAG"
-                 }
-	       }
+	      script{
+		      if (env.BRANCH_NAME == "develop" || env.BRANCH_NAME == "master") {    
+		         checkout scm
+                         // requires SonarQube Scanner 2.8+
+                         def scannerHome = tool 'SonarQubeScanner';
+                         withSonarQubeEnv('Sonarqube') {
+                           sh "${scannerHome}/bin/sonar-scanner -Dsonar.sources=. -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER"
+                         }
+		      }
+                }
             }
           },   
 		
