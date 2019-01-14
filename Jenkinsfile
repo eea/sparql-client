@@ -106,8 +106,8 @@ pipeline {
                   sh '''docker run -i --name="$BUILD_TAG-www" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/www-devel /debug.sh coverage'''
                   sh '''mkdir -p xunit-reports; docker cp $BUILD_TAG-www:/plone/instance/parts/xmltestreport/testreports/. xunit-reports/'''
                   stash name: "xunit-reports", includes: "xunit-reports/*.xml"
-                  sh '''mkdir -p xunit-coverage; docker cp $BUILD_TAG-www:/plone/instance/src/$GIT_NAME/coverage.xml xunit-coverage/coverage.xml'''
-                  stash name: "xunit-coverage", includes: "xunit-coverage/*.xml"
+                  sh '''docker cp $BUILD_TAG-www:/plone/instance/src/$GIT_NAME/coverage.xml coverage.xml'''
+                  stash name: "coverage.xml", includes: "coverage.xml"
                 } finally {
                   sh '''docker rm -v $BUILD_TAG-www'''
                 }
@@ -144,14 +144,12 @@ pipeline {
             dir("xunit-reports") {
               unstash "xunit-reports"
             }
-            dir('xunit-coverage') {
-              unstash "xunit-coverage"
-            }
+            unstash "coverage.xml"
             def scannerHome = tool 'SonarQubeScanner';
             def nodeJS = tool 'NodeJS11';
             withSonarQubeEnv('Sonarqube') {
-                sh '''sed -i "s|/plone/instance/src/$GIT_NAME|$(pwd)|g" xunit-coverage/coverage.xml'''
-                sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.xunit.skipDetails=true -Dsonar.python.xunit.reportPath=xunit-reports/*.xml -Dsonar.python.coverage.reportPath=xunit-coverage/coverage.xml -Dsonar.sources=. -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER"
+                sh '''sed -i "s|/plone/instance/src/$GIT_NAME|$(pwd)|g" coverage.xml'''
+                sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.xunit.skipDetails=true -Dsonar.python.xunit.reportPath=xunit-reports/*.xml -Dsonar.python.coverage.reportPath=coverage.xml -Dsonar.sources=. -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER"
             }
           }
         }
@@ -214,7 +212,7 @@ pipeline {
         } else if (status == 'FAILURE') {
           color = '#FF0000'
         }
-        slackSend (color: color, message: summary)
+
         emailext (subject: '$DEFAULT_SUBJECT', to: '$DEFAULT_RECIPIENTS', body: details)
       }
     }
