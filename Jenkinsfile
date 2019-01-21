@@ -131,14 +131,14 @@ pipeline {
       }
     }
 
-    stage('Report') {
+    stage('Report to Sonarqube') {
       when {
         allOf {
           environment name: 'CHANGE_ID', value: ''
         }
       }
       steps {
-        node(label: 'docker') {
+        node(label: 'swarm') {
           script{
             checkout scm
             dir("xunit-reports") {
