@@ -51,7 +51,7 @@ class MockQuery(sparql._Query):
 
     def _read_response(self, response, buf, timeout):
         try:
-            from urlparse import parse_qs
+            from six.moves.urllib.parse import parse_qs
         except ImportError:
             from cgi import parse_qs
         query = parse_qs(self.querystring).get('query', [''])[0]

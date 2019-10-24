@@ -1,27 +1,28 @@
 
-import urllib,urllib2
+from __future__ import print_function
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error,six.moves.urllib.request,six.moves.urllib.error,six.moves.urllib.parse
 
 statement = open("code.rq").read()
 query = { 'query': statement,
  'format':'xml' }
 
-qs = urllib.urlencode(query)
-print qs
-url = "http://dbpedia.org/sparql?" + urllib.urlencode(query)
+qs = six.moves.urllib.parse.urlencode(query)
+print(qs)
+url = "http://dbpedia.org/sparql?" + six.moves.urllib.parse.urlencode(query)
 
-opener = urllib2.build_opener(urllib2.HTTPHandler)
-urllib2.install_opener(opener)
-req = urllib2.Request(url)
+opener = six.moves.urllib.request.build_opener(six.moves.urllib.request.HTTPHandler)
+six.moves.urllib.request.install_opener(opener)
+req = six.moves.urllib.request.Request(url)
 #req.add_header("Accept", "application/xml")
 
 try:
-    conn = urllib2.urlopen(req, timeout=10)
+    conn = six.moves.urllib.request.urlopen(req, timeout=10)
 except Exception:
     conn = None
 
 if not conn:
-    raise IOError, "Failure in open"
+    raise IOError("Failure in open")
 
 data = conn.read()
 conn.close()
-print data
+print(data)
