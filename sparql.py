@@ -54,7 +54,6 @@ from six.moves.urllib.parse import urlencode
 from xml.dom import pulldom
 from xml.sax import SAXParseException
 # import compiler
-import ast
 import copy
 import decimal
 import re
