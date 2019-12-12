@@ -58,9 +58,12 @@ import copy
 import decimal
 import re
 import tempfile
-
 import eventlet
-from eventlet.green.urllib import request as ev_request
+import six
+if six.PY2:
+    from eventlet.green import urllib2 as ev_request
+else:
+    from eventlet.green.urllib import request as ev_request
 from six.moves import map
 import six
 from six.moves import input
