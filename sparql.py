@@ -489,8 +489,10 @@ class _Query(_ServiceMixin):
                 raise SparqlException(response_code, ret)
             else:
                 return response
-        except Exception as error:
+        except SparqlException as error:
             raise SparqlException('Error', error.message)
+        else:
+            return ''
 
     def _read_response(self, response, buf, timeout):
         if timeout > 0:
