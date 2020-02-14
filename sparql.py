@@ -47,7 +47,6 @@ and then executes them. Use a double line (two 'enters') to separate queries.
 Otherwise, the query is read from standard input.
 """
 
-from __future__ import print_function
 from base64 import encodestring
 # from string import replace
 from six.moves.urllib.parse import urlencode
@@ -716,8 +715,6 @@ def _interactive(endpoint):
 
                 for row in result.fetchone():
                     print("\t".join(map(six.text_type,row)))
-
-                print()
                 lines = []
 
         except Exception as e:

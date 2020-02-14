@@ -1,5 +1,4 @@
 
-from __future__ import print_function
 import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error,six.moves.urllib.request,six.moves.urllib.error,six.moves.urllib.parse
 
 statement = open("code.rq").read()
