@@ -167,7 +167,6 @@ class IRI(RDFTerm):
         self.value = value
 
     def __str__(self):
-        import pdb; pdb.set_trace()
         return self.value.encode("unicode-escape")
 
     def __eq__(self, other):
