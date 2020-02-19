@@ -6,6 +6,7 @@ from datetime import datetime, date, time
 import sparql
 import os.path
 from mock import Mock, patch
+from six.moves import map
 
 _dirname = os.path.dirname(__file__)
 
@@ -25,11 +26,11 @@ class TestConversion(unittest.TestCase):
                           u'foundingDate', u'timeexample'],
                          self.result.variables)
 
-        rows = map(sparql.unpack_row, self.result.fetchall())
+        rows = list(map(sparql.unpack_row, self.result.fetchall()))
         row0 = rows[0]
 
         self.assertEqual(type(row0[2]), datetime)
-        self.assertEqual(datetime(2009, 11, 02, 14, 31, 40), row0[2])
+        self.assertEqual(datetime(2009, 11, 0o2, 14, 31, 40), row0[2])
 
         self.assertEqual(type(row0[3]), date)
         self.assertEqual(date(1991, 8, 20), row0[3])
@@ -40,7 +41,7 @@ class TestConversion(unittest.TestCase):
     def test_decimal(self):
         import decimal
         self.assertEqual(self.result.variables[1], 'decimalData')
-        row0 = map(sparql.unpack_row, self.result.fetchall())[0]
+        row0 = list(map(sparql.unpack_row, self.result.fetchall()))[0]
         decval = row0[1]
         self.assertEqual(type(decval), decimal.Decimal)
         self.assertEqual(str(decval), "123.456")

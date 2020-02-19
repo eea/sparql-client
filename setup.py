@@ -27,7 +27,7 @@ setup(name=NAME,
       license="MPL",
       py_modules =['sparql'],
       install_requires=[
-          'eventlet',
+          'eventlet', 'six'
       ],
       extras_require={
             'test': [

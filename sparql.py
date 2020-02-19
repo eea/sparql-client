@@ -48,18 +48,24 @@ Otherwise, the query is read from standard input.
 """
 
 from base64 import encodestring
-from string import replace
-from urllib import urlencode
+# from string import replace
+from six.moves.urllib.parse import urlencode
 from xml.dom import pulldom
 from xml.sax import SAXParseException
-import compiler
+# import compiler
 import copy
 import decimal
 import re
 import tempfile
-
 import eventlet
-from eventlet.green import urllib2
+import six
+if six.PY2:
+    from eventlet.green import urllib2 as ev_request
+else:
+    from eventlet.green.urllib import request as ev_request
+from six.moves import map
+import six
+from six.moves import input
 
 try:
     __version__ = open('version.txt').read().strip()
@@ -125,7 +131,7 @@ def Datatype(value):
     """
     if value==None:
         r = None
-    elif datatype_dict.has_key(value):
+    elif value in datatype_dict:
         r = datatype_dict[value]
     else:
         r = datatype_dict[value] = value
@@ -161,13 +167,13 @@ class IRI(RDFTerm):
         self.value = value
 
     def __str__(self):
-       return self.value.encode("unicode-escape")
+        return self.value.encode("unicode-escape")
 
     def __eq__(self, other):
-       if type(self) != type(other):
-           return False
-       if self.value == other.value: return True
-       return False
+        if type(self) != type(other):
+            return False
+        if self.value == other.value: return True
+        return False
 
     def n3(self):
         return '<%s>' % self.value
@@ -193,7 +199,7 @@ class Literal(RDFTerm):
     Literals. These can take a data type or a language code.
     """
     def __init__(self, value, datatype=None, lang=None):
-        self.value = unicode(value)
+        self.value = six.text_type(value)
         self.lang = lang
         self.datatype = datatype
 
@@ -246,7 +252,7 @@ def parse_n3_term(src):
     (integers, decimals, booleans, etc) are not supported yet.
     """
 
-    src = unicode(src)
+    src = six.text_type(src)
 
     if src.startswith('<'):
         # `src` is an IRI
@@ -277,7 +283,7 @@ def parse_n3_term(src):
         # Python literals syntax is mostly compatible with N3.
         # We don't execute the code, just turn it into an AST.
         try:
-            ast = compiler.parse("value = u" + src)
+            ast = compile("value = u" + src)
         except:
             raise ValueError
 
@@ -290,11 +296,12 @@ def parse_n3_term(src):
         value_node = assign_node.getChildNodes()[1]
         if value_node.getChildNodes():
             raise ValueError
-        if value_node.__class__ != compiler.ast.Const:
+        # if value_node.__class__ != compiler.ast.Const:
+        if value_node.__class__ != ast.Constant():
             raise ValueError
         value = value_node.value
 
-        if type(value) is not unicode:
+        if type(value) is not six.text_type:
             raise ValueError
 
         return Literal(value, datatype, lang)
@@ -377,8 +384,10 @@ class Service(_ServiceMixin):
         return q.query(query, timeout, raw=raw)
 
     def authenticate(self, username, password):
-        self._headers_map['Authorization'] = "Basic %s" % replace(
-                encodestring("%s:%s" % (username, password)), "\012", "")
+        # self._headers_map['Authorization'] = "Basic %s" % replace(
+        #         encodestring("%s:%s" % (username, password)), "\012", "")
+        head = "Basic %s" % encodestring("%s:%s" % (username, password)).replace("\012", "")
+        self._headers_map['Authorization'] = head
 
 def _parseBoolean(val):
     if val.lower() in ('true', '1'):
@@ -461,10 +470,11 @@ class _Query(_ServiceMixin):
             else:
                 separator = '?'
             uri = self.endpoint.strip() + separator + query
-            return urllib2.Request(uri.encode('ASCII'))
+            return ev_request.Request(uri)
         else:
-            uri = self.endpoint.strip().encode('ASCII')
-            return urllib2.Request(uri, data=query)
+            # uri = self.endpoint.strip().encode('ASCII')
+            uri = self.endpoint.strip()
+            return ev_request.Request(uri, data=query)
 
     def _get_response(self, opener, request, buf, timeout=None):
         try:
@@ -477,15 +487,17 @@ class _Query(_ServiceMixin):
                 raise SparqlException(response_code, ret)
             else:
                 return response
-        except Exception, error:
+        except SparqlException as error:
             raise SparqlException('Error', error.message)
+        else:
+            return ''
 
     def _read_response(self, response, buf, timeout):
         if timeout > 0:
             with eventlet.timeout.Timeout(timeout):
                 try:
                     buf.write(response.read())
-                except eventlet.timeout.Timeout, error:
+                except eventlet.timeout.Timeout as error:
                     raise SparqlException('Timeout', repr(error))
         else:
             buf.write(response.read())
@@ -503,17 +515,15 @@ class _Query(_ServiceMixin):
         query = self._queryString(statement)
         buf = tempfile.NamedTemporaryFile()
 
-        opener = urllib2.build_opener(RedirectHandler)
-        opener.addheaders = self.headers().items()
-
+        opener = ev_request.build_opener(RedirectHandler)
+        opener.addheaders = list(self.headers().items())
         try:
             response = self._build_response(query, opener, buf, timeout)
-        except SparqlException, error:
+        except SparqlException as error:
             self.endpoint = error.message
             response = self._build_response(query, opener, buf, timeout)
 
         self._read_response(response, buf, timeout)
-
         buf.seek(0)
         return buf
 
@@ -534,7 +544,8 @@ class _Query(_ServiceMixin):
         args = []
         # refs #72876 removing the replace of newline to allow the comments in sparql queries
         #statement = statement.replace("\n", " ").encode('utf-8')
-        statement = statement.encode('utf-8')
+        # not needed py3
+        # statement = statement.encode('utf-8')
 
         pref = ' '.join(["PREFIX %s: <%s> " % (p, self._prefix_map[p]) for p in self._prefix_map])
 
@@ -547,15 +558,14 @@ class _Query(_ServiceMixin):
 
         for uri in self.namedGraphs():
             args.append(('named-graph-uri', uri))
+        return urlencode(args).encode('utf-8')
 
-        return urlencode(args)
 
-
-class RedirectHandler(urllib2.HTTPRedirectHandler):
+class RedirectHandler(ev_request.HTTPRedirectHandler):
     """
     Subclass the HTTPRedirectHandler to re-contruct request when follow redirect
     """
-    def redirect_request(self, req, fp, code, msg, headers, newurl): 
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
         if code in (301, 302, 303, 307):
             raise SparqlException(code, newurl)
         else:
@@ -652,11 +662,9 @@ class _ResultsParser(object):
                     if node.tagName == 'result':
                         #print "rtn:", len(self._vals), self._vals
                         yield tuple(self._vals)
-        except SAXParseException, e:
-            import sys
-
+        except SAXParseException as e:
             faultString = 'The data is ' + e.message
-            print >>sys.stderr, faultString
+            print(faultString)
             yield tuple()
 
     def fetchall(self):
@@ -691,7 +699,7 @@ def _interactive(endpoint):
         try:
             lines = []
             while True:
-                next = raw_input()
+                next = input()
                 if not next:
                     break
                 else:
@@ -703,12 +711,10 @@ def _interactive(endpoint):
                 sys.stdout.write("  done\n")
 
                 for row in result.fetchone():
-                    print "\t".join(map(unicode,row))
-
-                print
+                    print("\t".join(map(six.text_type, row)))
                 lines = []
 
-        except Exception, e:
+        except Exception as e:
             sys.stderr.write(str(e))
 
 
@@ -749,8 +755,7 @@ if __name__ == '__main__':
     try:
         result = query(endpoint, q)
         for row in result.fetchone():
-            print "\t".join(map(unicode,row))
-    except SparqlException, e:
+            print("\t".join(map(six.text_type, row)))
+    except SparqlException as e:
         faultString = e.message
-        print >>sys.stderr, faultString
-
+        print(faultString)

@@ -6,6 +6,8 @@ import sparql
 import os.path
 from mock import patch
 from xml.dom import pulldom
+from six.moves import map
+import six
 
 def _open_datafile(name):
     return open(os.path.join(os.path.dirname(__file__), name))
@@ -31,7 +33,7 @@ class TestParser(unittest.TestCase):
         result = sparql._ResultsParser(resultfp)
         self.assertEqual([u'eeaURI', u'gdpTotal', u'eeacode', u'nutscode', u'faocode', u'gdp', u'name'], result.variables)
 
-        rows = map(sparql.unpack_row, result.fetchall())
+        rows = list(map(sparql.unpack_row, result.fetchall()))
         row0 = rows[0]
         self.assertEqual(u"http://rdfdata.eionet.europa.eu/eea/countries/BE", row0[0])
         # XSD_FAO_MILLION unpacked as string
@@ -93,7 +95,7 @@ class TestParser(unittest.TestCase):
         row0 = rows[0]
         self.assertEqual("http://aims.fao.org/aos/geopolitical.owl#Germany", str(row0[0]))
         self.assertEqual(sparql.IRI(u"http://aims.fao.org/aos/geopolitical.owl#Germany"), row0[0])
-        self.assertEqual(u"Германия", unicode(row0[2]))
+        self.assertEqual(u"Германия", six.text_type(row0[2]))
 
     def test_big_text(self):
         # `xml.dom.pulldom` may return several text nodes within a single
@@ -117,7 +119,7 @@ class TestParser(unittest.TestCase):
         result = sparql._ResultsParser(resultfp)
         setattr(result, 'events', result._fetchhead())
         for row in result.fetchone():
-          print row
+          print(row)
 
 
 if __name__ == '__main__':
