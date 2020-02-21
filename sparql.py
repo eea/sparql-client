@@ -48,11 +48,9 @@ Otherwise, the query is read from standard input.
 """
 
 from base64 import encodestring
-# from string import replace
 from six.moves.urllib.parse import urlencode
 from xml.dom import pulldom
 from xml.sax import SAXParseException
-# import compiler
 import copy
 import decimal
 import re
@@ -61,6 +59,7 @@ import eventlet
 import six
 if six.PY2:
     from eventlet.green import urllib2 as ev_request
+    import compiler
 else:
     from eventlet.green.urllib import request as ev_request
 from six.moves import map
@@ -283,7 +282,11 @@ def parse_n3_term(src):
         # Python literals syntax is mostly compatible with N3.
         # We don't execute the code, just turn it into an AST.
         try:
-            ast = compile("value = u" + src)
+            if six.PY2:
+                ast = compiler.parse("value = u" + src)
+            else:
+                # should be fixed due to #111217
+                ast = compile("value = u" + src)
         except:
             raise ValueError
 
@@ -296,9 +299,12 @@ def parse_n3_term(src):
         value_node = assign_node.getChildNodes()[1]
         if value_node.getChildNodes():
             raise ValueError
-        # if value_node.__class__ != compiler.ast.Const:
-        if value_node.__class__ != ast.Constant():
-            raise ValueError
+        if six.PY2:
+            if value_node.__class__ != compiler.ast.Const:
+                raise ValueError
+        else:
+            if value_node.__class__ != ast.Constant():
+                raise ValueError
         value = value_node.value
 
         if type(value) is not six.text_type:
