@@ -2,19 +2,19 @@ Changelog
 =========
 
 3.5-dev0 - (unreleased)
----------------------
+--------------------------
 * Feature: merged source code so it now works on both Python 2 and Python 3
   [alecghica refs #110159]
 * Feature: updated Jenkins pipeline
   [alecghica refs #110159]
 
 3.4 - (2019-01-28)
----------------------
+--------------------------
 * Jenkins: Add sonarqube step
   [avoinea refs #101552]
 
 3.3 - (2018-12-11)
----------------------
+--------------------------
 * Feature: when building the request from an endpoint that followed redirects
   the query works fine now
   [alecghica refs #100666]
