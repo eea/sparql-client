@@ -5,6 +5,8 @@ Changelog
 ---------------------
 * Feature: merged source code so it now works on both Python 2 and Python 3
   [alecghica refs #110159]
+* Feature: updated Jenkins pipeline
+  [alecghica refs #110159]
 
 3.4 - (2019-01-28)
 ---------------------
