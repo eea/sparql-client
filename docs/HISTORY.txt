@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.5-dev0 - (unreleased)
+3.5 - (2020-02-26)
 --------------------------
 * Feature: merged source code so it now works on both Python 2 and Python 3
   [alecghica refs #110159]
