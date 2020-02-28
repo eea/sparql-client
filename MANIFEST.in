@@ -1,7 +1,7 @@
-include *.rst
-recursive-include docs *
-include *.py
-include version.txt
-global-exclude *py[co]
-
+include *.md *.rst *.txt
+graft docs
+graft version.txt
+global-exclude *pyc
+global-exclude *~
+global-exclude *.un~
 global-include *.mo

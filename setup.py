@@ -23,11 +23,12 @@ setup(name=NAME,
       keywords="Sparql Client",
       author='European Environment Agency: IDM2 A-Team',
       author_email='eea-edw-a-team-alerts@googlegroups.com',
+      long_description_content_type='text/x-rst',
       url='https://github.com/eea/sparql-client',
       license="MPL",
       py_modules =['sparql'],
       install_requires=[
-          'eventlet',
+          'eventlet', 'six'
       ],
       extras_require={
             'test': [
