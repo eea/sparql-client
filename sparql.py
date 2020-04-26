@@ -632,7 +632,7 @@ class _ResultsParser(object):
         return self._hasResult
 
     def __iter__(self):
-        """ Synonim for :func:`fetchone`. """
+        """ Synonym for :func:`fetchone`. """
         return self.fetchone()
 
     def fetchone(self):
