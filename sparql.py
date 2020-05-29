@@ -745,7 +745,7 @@ class prepare_query():
         else:
             return self.query
 
-def my_own(my_endpoint, my_ps, timeout=0, qs_encoding="utf-8", method="POST",
+def exec_query(my_endpoint, my_ps, timeout=0, qs_encoding="utf-8", method="POST",
           accept="application/sparql-results+xml", raw=False):
     qry = my_ps.exec_query()
     rslt = query(my_endpoint, qry, timeout, qs_encoding,method,accept,raw)
