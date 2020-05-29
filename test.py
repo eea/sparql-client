@@ -21,7 +21,7 @@ pq.set_variable(2,var2)
 pq.set_variable(1,var1)
 
 
-result = sparql.my_own(endpoint, pq,method="GET")
+result = sparql.exec_query(endpoint, pq,method="GET")
 for row in result.fetchone():
     print(row)
     
