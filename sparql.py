@@ -471,6 +471,7 @@ class _Query(_ServiceMixin):
 
     def _build_request(self, query):
         if self.method == "GET":
+            query = str(query)[2:-1]
             if '?' in self.endpoint:
                 separator = '&'
             else:
@@ -723,6 +724,34 @@ def _interactive(endpoint):
         except Exception as e:
             sys.stderr.write(str(e))
 
+######################################### MY CODE START HERE #######################################################
+
+class prepare_query():
+
+    def __init__(self,q):
+        self.query = q
+        self.variable_dct = {}
+
+    def set_variable(self,n,var):
+        p = '@' + str(n)
+        self.variable_dct[p] = var
+
+    def exec_query(self):
+        for i in self.variable_dct.keys():
+            self.query = self.query.replace(i,self.variable_dct[i])
+        # Check whether all the symbols have there values or not
+        if '@' in self.query:
+            raise ValueError('All variables are not set')
+        else:
+            return self.query
+
+def my_own(my_endpoint, my_ps, timeout=0, qs_encoding="utf-8", method="POST",
+          accept="application/sparql-results+xml", raw=False):
+    qry = my_ps.exec_query()
+    rslt = query(my_endpoint, qry, timeout, qs_encoding,method,accept,raw)
+    return rslt
+
+################################ MY CODE END HERE ###########################################
 
 class SparqlException(Exception):
     """ Sparql Exceptions """
@@ -765,3 +794,4 @@ if __name__ == '__main__':
     except SparqlException as e:
         faultString = e.message
         print(faultString)
+
