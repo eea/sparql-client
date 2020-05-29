@@ -24,3 +24,4 @@ pq.set_variable(1,var1)
 result = sparql.my_own(endpoint, pq,method="GET")
 for row in result.fetchone():
     print(row)
+    
