@@ -724,7 +724,7 @@ def _interactive(endpoint):
         except Exception as e:
             sys.stderr.write(str(e))
 
-######################################### MY CODE START HERE #######################################################
+######################################### To solve issue #15 END HERE #######################################################
 
 class prepare_query():
 
@@ -751,7 +751,7 @@ def exec_query(my_endpoint, my_ps, timeout=0, qs_encoding="utf-8", method="POST"
     rslt = query(my_endpoint, qry, timeout, qs_encoding,method,accept,raw)
     return rslt
 
-################################ MY CODE END HERE ###########################################
+################################ To solve issue #15 END HERE ###########################################
 
 class SparqlException(Exception):
     """ Sparql Exceptions """
