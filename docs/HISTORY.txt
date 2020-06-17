@@ -3,6 +3,8 @@ Changelog
 
 3.7-dev0 - (unreleased)
 ---------------------------
+* Feature: added the documentation originally found under eionet.euripa.eu
+  [alecghica refs #111217]
 
 3.6 - (2020-03-03)
 ---------------------------
