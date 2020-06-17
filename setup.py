@@ -11,7 +11,7 @@ VERSION = open('version.txt').read().strip()
 setup(name=NAME,
       version=VERSION,
       description='Python API to query a SPARQL endpoint',
-      long_description = open('README.rst').read() + "\n\n" +
+      long_description = open('README.rst').read() + "\n\n" + \
                          open(os.path.join("docs", "HISTORY.txt")).read(),
       classifiers=[
         'Environment :: Console',
@@ -26,7 +26,7 @@ setup(name=NAME,
       long_description_content_type='text/x-rst',
       url='https://github.com/eea/sparql-client',
       license="MPL",
-      py_modules =['sparql'],
+      py_modules=['sparql'],
       install_requires=[
           'eventlet', 'six'
       ],
