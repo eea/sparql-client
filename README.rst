@@ -102,6 +102,7 @@ Literals. These can take a data type or a language code.
 Blank node. Similar to IRI but lacks a stable identifier.
 
 Query utilities
+===============
 
 ``class sparql.Service(endpoint, qs_encoding='utf-8')``
 
