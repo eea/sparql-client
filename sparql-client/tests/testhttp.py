@@ -1,5 +1,6 @@
 import unittest
 import sparql
+import six
 
 QUERIES = {
 "SELECT * WHERE {?s ?p ?o} LIMIT 2": """\
@@ -46,7 +47,10 @@ class MockResponse(object):
 
 class MockQuery(sparql._Query):
     def _get_response(self, opener, request, buf, timeout):
-        self.querystring = request.get_data()
+        if six.PY2:
+            self.querystring = request.get_data()
+        else:
+        	self.querystring = request.data.decode()
         return MockResponse()
 
     def _read_response(self, response, buf, timeout):
@@ -55,7 +59,11 @@ class MockQuery(sparql._Query):
         except ImportError:
             from cgi import parse_qs
         query = parse_qs(self.querystring).get('query', [''])[0]
-        buf.write(QUERIES[query])
+        if not six.PY2:
+            value = QUERIES[query].encode()
+        else:
+            value = QUERIES[query]
+        buf.write(value)
 
 
 class TestSparqlEndpoint(unittest.TestCase):

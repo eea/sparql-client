@@ -62,6 +62,7 @@ if six.PY2:
     import compiler
 else:
     from eventlet.green.urllib import request as ev_request
+    import ast as astcompiler
 from six.moves import map
 import six
 from six.moves import input
@@ -286,26 +287,39 @@ def parse_n3_term(src):
                 ast = compiler.parse("value = u" + src)
             else:
                 # should be fixed due to #111217
-                ast = compile("value = u" + src)
+                ast = astcompiler.parse("value = " + src)
         except:
             raise ValueError
 
-        # Don't allow any extra tokens in the AST
-        if len(ast.node.getChildNodes()) != 1:
-            raise ValueError
-        assign_node = ast.node.getChildNodes()[0]
-        if len(assign_node.getChildNodes()) != 2:
-            raise ValueError
-        value_node = assign_node.getChildNodes()[1]
-        if value_node.getChildNodes():
-            raise ValueError
         if six.PY2:
+            # Don't allow any extra tokens in the AST
+            if len(ast.node.getChildNodes()) != 1:
+                raise ValueError
+            assign_node = ast.node.getChildNodes()[0]
+            if len(assign_node.getChildNodes()) != 2:
+                raise ValueError
+            value_node = assign_node.getChildNodes()[1]
+            if value_node.getChildNodes():
+                raise ValueError
             if value_node.__class__ != compiler.ast.Const:
                 raise ValueError
+            value = value_node.value
         else:
-            if value_node.__class__ != ast.Constant():
+            # Don't allow any extra tokens in the AST
+            if len(ast.body) != 1:
                 raise ValueError
-        value = value_node.value
+            assign_node = ast.body[0]
+
+            if len(assign_node._fields) != 2:
+                raise ValueError
+
+            value_node = assign_node.value
+            if len(value_node._fields) != 1:
+                raise ValueError
+
+            # if value_node.__class__ != ast.Constant():
+            #     raise ValueError
+            value = getattr(value_node, value_node._fields[0])
 
         if type(value) is not six.text_type:
             raise ValueError
@@ -669,7 +683,11 @@ class _ResultsParser(object):
                         #print "rtn:", len(self._vals), self._vals
                         yield tuple(self._vals)
         except SAXParseException as e:
-            faultString = 'The data is ' + e.message
+            if six.PY2:
+                message = e.message
+            else:
+                message = e.getMessage()
+            faultString = 'The data is ' + message
             print(faultString)
             yield tuple()
 
@@ -763,5 +781,9 @@ if __name__ == '__main__':
         for row in result.fetchone():
             print("\t".join(map(six.text_type, row)))
     except SparqlException as e:
-        faultString = e.message
+        if six.PY2:
+            message = e.message
+        else:
+            message = e.getMessage()
+        faultString = message
         print(faultString)

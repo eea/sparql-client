@@ -51,7 +51,10 @@ class TestParser(unittest.TestCase):
         rows = result.fetchmany(2)
         self.assertEqual(2, len(rows))
         row0 = rows[0]
-        self.assertEqual("http://rdfdata.eionet.europa.eu/eea/countries/BE", str(row0[0]))
+        if six.PY2:
+            self.assertEqual("http://rdfdata.eionet.europa.eu/eea/countries/BE", str(row0[0]))
+        else:
+            self.assertEqual("http://rdfdata.eionet.europa.eu/eea/countries/BE", row0[0].value)
         rows = result.fetchmany(2)
         self.assertEqual(1, len(rows))
         row0 = rows[0]
@@ -77,7 +80,10 @@ class TestParser(unittest.TestCase):
         self.assertEqual([u'x', u'hpage', u'name', u'mbox', u'age', u'blurb', u'friend'], result.variables)
         rows = result.fetchall()
         row0 = rows[0]
-        self.assertEqual("http://work.example.org/alice/", str(row0[1]))
+        if six.PY2:
+            self.assertEqual("http://work.example.org/alice/", str(row0[1]))
+        else:
+            self.assertEqual("http://work.example.org/alice/", row0[1].value)
 
     def test_hasresult(self):
         """ Check that http://www.w3.org/TR/rdf-sparql-XMLres/output2.srx works """
@@ -93,7 +99,11 @@ class TestParser(unittest.TestCase):
 
         rows = result.fetchall()
         row0 = rows[0]
-        self.assertEqual("http://aims.fao.org/aos/geopolitical.owl#Germany", str(row0[0]))
+        if six.PY2:
+            self.assertEqual("http://aims.fao.org/aos/geopolitical.owl#Germany", str(row0[0]))
+        else:
+            self.assertEqual("http://aims.fao.org/aos/geopolitical.owl#Germany", row0[0].value)
+
         self.assertEqual(sparql.IRI(u"http://aims.fao.org/aos/geopolitical.owl#Germany"), row0[0])
         self.assertEqual(u"Германия", six.text_type(row0[2]))
 

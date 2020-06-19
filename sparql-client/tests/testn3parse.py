@@ -1,5 +1,11 @@
 import unittest
 import sparql
+import six
+
+try:
+    from testdatatypes import _literal_data
+except ImportError:
+    from .testdatatypes import _literal_data
 
 _string_literals = [
     ('""', ''), # empty string
@@ -14,7 +20,6 @@ _string_literals = [
     ("'''some\ntext\n   with spaces'''", 'some\ntext\n   with spaces'),
 ]
 
-from testdatatypes import _literal_data
 for _value, _n3 in _literal_data:
     _string_literals.append((_n3, _value))
 
@@ -26,7 +31,11 @@ class N3ParsingTest(unittest.TestCase):
         class Tricky(object):
             def __unicode__(self):
                 return '<%s>' % value
-        self.assertEqual(sparql.parse_n3_term(Tricky()), sparql.IRI(value))
+        if six.PY2:
+            parsed = sparql.parse_n3_term(Tricky())
+        else:
+            parsed = sparql.parse_n3_term(Tricky().__unicode__())
+        self.assertEqual(parsed, sparql.IRI(value))
 
     def test_parse_IRI(self):
         value = 'http://example.com/some_iri'

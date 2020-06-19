@@ -3,6 +3,7 @@
 
 import unittest
 import sparql
+import six
 
 
 class TestLiterals(unittest.TestCase):
@@ -46,7 +47,10 @@ class TestLiterals(unittest.TestCase):
         class SomeType(object):
             def __unicode__(self):
                 return u"hello world"
-        l = sparql.Literal(SomeType())
+        if six.PY2:
+            l = sparql.Literal(SomeType())
+        else:
+            l = sparql.Literal(SomeType().__unicode__())
         self.assertEqual(str(l), "hello world")
 
     def test_repr(self):
@@ -111,8 +115,11 @@ class TestTypedLiterals(unittest.TestCase):
         class SomeType(object):
             def __unicode__(self):
                 return u"hello world"
-        l = sparql.Literal(SomeType(),u"http://aims.fao.org/aos/geopolitical.owl#MillionUSD")
-        self.assertEqual(str(l), "hello world")
+        if six.PY2:
+            lt = sparql.Literal(SomeType(),u"http://aims.fao.org/aos/geopolitical.owl#MillionUSD")
+        else:
+            lt = sparql.Literal(SomeType().__unicode__(),u"http://aims.fao.org/aos/geopolitical.owl#MillionUSD")
+        self.assertEqual(str(lt), "hello world")
 
 class TestIRIs(unittest.TestCase):
 
@@ -144,6 +151,7 @@ _literal_data = [
     (u"ascii-unicode"       , '"ascii-unicode"'),
     (u"̈Ünɨcøðé"             , '"\\u0308\\u00dcn\\u0268c\\u00f8\\u00f0\\u00e9"'),
     (u"\u6f22\u5b57(kanji)" , '"\u6f22\u5b57(kanji)"'),
+                            #   '"\\u6f22\\u5b57(kanji)"'
 ]
 
 class TestNotation3(unittest.TestCase):
@@ -151,6 +159,10 @@ class TestNotation3(unittest.TestCase):
     def test_literal(self):
         """ Notation3 representation of a literal """
         for value, expected in _literal_data:
+            # if 'kanji' in value:
+            #     # import pdb; pdb.set_trace() # TODO:
+            #     x = sparql.Literal(value)
+            #     x.n3()
             self.assertEqual(sparql.Literal(value).n3(), expected)
             self.assertEqual(sparql.Literal(value, lang='en').n3(), expected+'@en')
 
