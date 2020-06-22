@@ -53,7 +53,10 @@ class MockQuery(sparql._Query):
 		if six.PY2:
 			self.querystring = request.get_data()
 		else:
-			self.querystring = request.data.decode()
+			if not request.data:
+				self.querystring = request.selector.split('?')[1]
+			else:
+				self.querystring = request.data
 		return MockResponse()
 
 	def _read_response(self, response, buf, timeout):
@@ -71,28 +74,28 @@ class MockQuery(sparql._Query):
 
 class TestSparqlEndpoint(unittest.TestCase):
 
-    def setUp(self):
-        self.old_Query = sparql._Query
-        sparql._Query = MockQuery
+	def setUp(self):
+		self.old_Query = sparql._Query
+		sparql._Query = MockQuery
 
-    def tearDown(self):
-        sparql._Query = self.old_Query
+	def tearDown(self):
+		sparql._Query = self.old_Query
 
-    def test_simple_query(self):
-        from sparql import IRI
-        URI_LANG = 'http://rdfdata.eionet.europa.eu/eea/languages'
-        URI_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
-        URI_LANG_TYPE = 'http://rdfdata.eionet.europa.eu/eea/ontology/Language'
-        endpoint = "http://cr3.eionet.europa.eu/sparql"
+	def test_simple_query(self):
+		from sparql import IRI
+		URI_LANG = 'http://rdfdata.eionet.europa.eu/eea/languages'
+		URI_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+		URI_LANG_TYPE = 'http://rdfdata.eionet.europa.eu/eea/ontology/Language'
+		endpoint = "http://cr3.eionet.europa.eu/sparql"
+		
+		result = sparql.query(endpoint, "SELECT * WHERE {?s ?p ?o} LIMIT 2")
 
-        result = sparql.query(endpoint, "SELECT * WHERE {?s ?p ?o} LIMIT 2")
-
-        self.assertEqual(result.variables, ['s', 'p', 'o'])
-        self.assertEqual(list(result), [
-            (IRI(URI_LANG+'/en'), IRI(URI_TYPE), IRI(URI_LANG_TYPE)),
-            (IRI(URI_LANG+'/da'), IRI(URI_TYPE), IRI(URI_LANG_TYPE)),
-        ])
+		self.assertEqual(result.variables, ['s', 'p', 'o'])
+		self.assertEqual(list(result), [
+		    (IRI(URI_LANG+'/en'), IRI(URI_TYPE), IRI(URI_LANG_TYPE)),
+		    (IRI(URI_LANG+'/da'), IRI(URI_TYPE), IRI(URI_LANG_TYPE)),
+		])
 
 
 if __name__ == '__main__':
-    unittest.main()
+	unittest.main()
