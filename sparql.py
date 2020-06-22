@@ -597,7 +597,10 @@ class _Query(_ServiceMixin):
 
         for uri in self.namedGraphs():
             args.append(('named-graph-uri', uri))
-        return urlencode(args).encode('utf-8')
+        if six.PY2:
+            return urlencode(args).encode('utf-8')
+        else:
+            return urlencode(args)
 
 
 class RedirectHandler(ev_request.HTTPRedirectHandler):
