@@ -48,8 +48,7 @@ Otherwise, the query is read from standard input.
 """
 
 from base64 import encodestring
-from six.moves import input
-from six.moves import map
+from six.moves import input, map
 from six.moves.urllib.parse import urlencode
 from xml.dom import pulldom
 from xml.sax import SAXParseException
@@ -74,16 +73,16 @@ except Exception:
 USER_AGENT = "sparql-client/%s +https://www.eionet.europa.eu/software/sparql-client/" % __version__
 
 CONTENT_TYPE = {
-                 'turtle': "application/turtle" ,
+                 'turtle': "application/turtle",
                  'n3': "application/n3",
-                 'rdfxml': "application/rdf+xml" ,
-                 'ntriples': "application/n-triples" ,
+                 'rdfxml': "application/rdf+xml",
+                 'ntriples': "application/n-triples",
                  'xml': "application/xml"
                 }
 
 
 RESULTS_TYPES = {
-                 'xml': "application/sparql-results+xml" ,
+                 'xml': "application/sparql-results+xml",
                  'xmlschema': "application/x-ms-access-export+xml",
                  'json': "application/sparql-results+json"
                  }
@@ -198,8 +197,7 @@ def _n3_quote(string):
         ch = m.group()
         if ch in _n3_quote_map:
             return _n3_quote_map[ch]
-        else:
-            return "\\u%04x" % ord(ch)
+        return "\\u%04x" % ord(ch)
     return '"' + _n3_quote_char.sub(escape, string) + '"'
 
 
@@ -221,8 +219,7 @@ class Literal(RDFTerm):
               self.datatype == other.datatype):
             return True
 
-        else:
-            return False
+        return False
 
     def n3(self):
         n3_value = _n3_quote(self.value)
@@ -426,10 +423,7 @@ class Service(_ServiceMixin):
 
 
 def _parseBoolean(val):
-    if val.lower() in ('true', '1'):
-        return True
-    else:
-        return False
+    return val.lower() in ('true', '1')
 
 
 # XMLSchema types and cast functions
@@ -599,8 +593,7 @@ class _Query(_ServiceMixin):
             args.append(('named-graph-uri', uri))
         if six.PY2:
             return urlencode(args).encode('utf-8')
-        else:
-            return urlencode(args)
+        return urlencode(args)
 
 
 class RedirectHandler(ev_request.HTTPRedirectHandler):
@@ -785,7 +778,7 @@ if __name__ == '__main__':
 
     try:
         c = codecs.getwriter(sys.stdout.encoding)
-    except:
+    except Exception:
         c = codecs.getwriter('ascii')
     sys.stdout = c(sys.stdout, 'replace')
 
