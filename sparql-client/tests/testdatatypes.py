@@ -149,20 +149,20 @@ _literal_data = [
     ("new\nlines"           , '"new\\nlines"'),
     ("ta\tbs"               , '"ta\\tbs"'),
     (u"ascii-unicode"       , '"ascii-unicode"'),
-    (u"̈Ünɨcøðé"             , '"\\u0308\\u00dcn\\u0268c\\u00f8\\u00f0\\u00e9"'),
-    (u"\u6f22\u5b57(kanji)" , '"\u6f22\u5b57(kanji)"'),
-                            #   '"\\u6f22\\u5b57(kanji)"'
+    (u"̈Ünɨcøðé"             , '"\\u0308\\u00dcn\\u0268c\\u00f8\\u00f0\\u00e9"')
 ]
+
+if six.PY2:
+    _literal_data.append((u"\u6f22\u5b57(kanji)" , '"\u6f22\u5b57(kanji)"'))
+else:
+    _literal_data.append((u"\u6f22\u5b57(kanji)" , '"\\u6f22\\u5b57(kanji)"'))
+
 
 class TestNotation3(unittest.TestCase):
 
     def test_literal(self):
         """ Notation3 representation of a literal """
         for value, expected in _literal_data:
-            # if 'kanji' in value:
-            #     # import pdb; pdb.set_trace() # TODO:
-            #     x = sparql.Literal(value)
-            #     x.n3()
             self.assertEqual(sparql.Literal(value).n3(), expected)
             self.assertEqual(sparql.Literal(value, lang='en').n3(), expected+'@en')
 
