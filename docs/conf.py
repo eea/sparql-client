@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from sparql import __version__ as version
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx']
 
@@ -9,7 +10,6 @@ master_doc = 'index'
 project = u'sparql-client'
 copyright = u'2011, European Environment Agency'
 
-from sparql import __version__ as version
 release = version
 
 exclude_patterns = ['_build']

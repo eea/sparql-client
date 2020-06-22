@@ -11,8 +11,8 @@ VERSION = open('version.txt').read().strip()
 setup(name=NAME,
       version=VERSION,
       description='Python API to query a SPARQL endpoint',
-      long_description = open('README.rst').read() + "\n\n" + \
-                         open(os.path.join("docs", "HISTORY.txt")).read(),
+      long_description=open('README.rst').read() + "\n\n" + \
+                       open(os.path.join("docs", "HISTORY.txt")).read(),
       classifiers=[
         'Environment :: Console',
         'Intended Audience :: Developers',
