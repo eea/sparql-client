@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import unittest
 import sparql
 import six
@@ -46,24 +49,24 @@ class MockResponse(object):
 
 
 class MockQuery(sparql._Query):
-    def _get_response(self, opener, request, buf, timeout):
-        if six.PY2:
-            self.querystring = request.get_data()
-        else:
-        	self.querystring = request.data.decode()
-        return MockResponse()
+	def _get_response(self, opener, request, buf, timeout):
+		if six.PY2:
+			self.querystring = request.get_data()
+		else:
+			self.querystring = request.data.decode()
+		return MockResponse()
 
-    def _read_response(self, response, buf, timeout):
-        try:
-            from six.moves.urllib.parse import parse_qs
-        except ImportError:
-            from cgi import parse_qs
-        query = parse_qs(self.querystring).get('query', [''])[0]
-        if not six.PY2:
-            value = QUERIES[query].encode()
-        else:
-            value = QUERIES[query]
-        buf.write(value)
+	def _read_response(self, response, buf, timeout):
+		try:
+			from six.moves.urllib.parse import parse_qs
+		except ImportError:
+			from cgi import parse_qs
+		query = parse_qs(self.querystring).get('query', [''])[0]
+		if not six.PY2:
+			value = QUERIES[query].encode()
+		else:
+			value = QUERIES[query]
+		buf.write(value)
 
 
 class TestSparqlEndpoint(unittest.TestCase):
