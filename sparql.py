@@ -537,6 +537,8 @@ class _Query(_ServiceMixin):
 
     def _build_response(self, query, opener, buf, timeout):
         request = self._build_request(query)
+        if type(query) is not bytes and not six.PY2:
+            query = query.encode()
         return self._get_response(opener, request, buf,
                                   timeout if timeout > 0 else None)
 
@@ -581,8 +583,10 @@ class _Query(_ServiceMixin):
         # statement = statement.encode('utf-8')
 
         pref = ' '.join(["PREFIX %s: <%s> " % (p, self._prefix_map[p]) for p in self._prefix_map])
-
-        statement = pref + statement
+        if six.PY2:
+            statement = pref + statement
+        else:
+            statement = pref.encode() + statement
 
         args.append(('query', statement))
 
