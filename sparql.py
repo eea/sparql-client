@@ -586,7 +586,7 @@ class _Query(_ServiceMixin):
         if six.PY2:
             statement = pref + statement
         else:
-            statement = pref.encode() + statement
+            statement = pref.encode() + statement.encode()
 
         args.append(('query', statement))
 
