@@ -553,6 +553,8 @@ class _Query(_ServiceMixin):
         opener = ev_request.build_opener(RedirectHandler)
         opener.addheaders = list(self.headers().items())
         try:
+            if type(query) is not bytes and not six.PY2:
+                query = query.encode()
             response = self._build_response(query, opener, buf, timeout)
         except SparqlException as error:
             self.endpoint = error.message
