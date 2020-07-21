@@ -12,7 +12,7 @@ statement = open('code.rq').read()
 query = {'query': statement, 'format': 'xml'}
 
 qs = six.moves.urllib.parse.urlencode(query)
-print qs
+print(qs)
 url = 'http://dbpedia.org/sparql?' \
     + six.moves.urllib.parse.urlencode(query)
 
@@ -33,4 +33,4 @@ if not conn:
 
 data = conn.read()
 conn.close()
-print data
+print(data)

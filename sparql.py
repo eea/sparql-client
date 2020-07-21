@@ -30,7 +30,7 @@ query use :func:`query`. Results are encapsulated in a
 
     >>> result = sparql.query(endpoint, query)
     >>> for row in result:
-    >>>    print row
+    >>>    print(row)
 
 
 Command-line use
