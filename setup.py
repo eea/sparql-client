@@ -28,7 +28,9 @@ setup(name=NAME,
       license="MPL",
       py_modules=['sparql'],
       install_requires=[
-          'eventlet', 'six'
+          'eventlet',
+          'six',
+          'dnspython < 2.0.0',
       ],
       extras_require={
             'test': [
