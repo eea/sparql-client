@@ -57,6 +57,8 @@ class MockQuery(sparql._Query):
                 self.querystring = request.selector.split('?')[1]
             else:
                 self.querystring = request.data
+            if isinstance(self.querystring, six.binary_type):
+                self.querystring = self.querystring.decode("utf-8")
         return MockResponse()
 
     def _read_response(self, response, buf, timeout):
