@@ -1,9 +1,16 @@
 Changelog
 =========
 
+3.8 - (2020-06-17)
+---------------------------
+* Bug fix: fixed Python3 query execution
+  [alecghica refs #111217]
+* Feature: PEP8 and linting
+  [alecghica refs #111217]
+
 3.7 - (2020-06-17)
 ---------------------------
-* Feature: added the documentation originally found under eionet.euripa.eu
+* Feature: added the documentation originally found under eionet.europa.eu
   [alecghica refs #111217]
 
 3.6 - (2020-03-03)

@@ -30,7 +30,7 @@ query use :func:`query`. Results are encapsulated in a
 
     >>> result = sparql.query(endpoint, query)
     >>> for row in result:
-    >>>    print row
+    >>>    print(row)
 
 
 Command-line use
@@ -48,6 +48,7 @@ Otherwise, the query is read from standard input.
 """
 
 from base64 import encodestring
+from six.moves import input, map
 from six.moves.urllib.parse import urlencode
 from xml.dom import pulldom
 from xml.sax import SAXParseException
@@ -62,30 +63,28 @@ if six.PY2:
     import compiler
 else:
     from eventlet.green.urllib import request as ev_request
-from six.moves import map
-import six
-from six.moves import input
+    import ast as astcompiler
 
 try:
     __version__ = open('version.txt').read().strip()
 except Exception:
     __version__ = "2.6"
 
-USER_AGENT =  "sparql-client/%s +https://www.eionet.europa.eu/software/sparql-client/" % __version__
+USER_AGENT = "sparql-client/%s +https://www.eionet.europa.eu/software/sparql-client/" % __version__
 
 CONTENT_TYPE = {
-                 'turtle' : "application/turtle" ,
-                 'n3' :"application/n3",
-                 'rdfxml' : "application/rdf+xml" ,
-                 'ntriples' : "application/n-triples" ,
-                 'xml' : "application/xml"
+                 'turtle': "application/turtle",
+                 'n3': "application/n3",
+                 'rdfxml': "application/rdf+xml",
+                 'ntriples': "application/n-triples",
+                 'xml': "application/xml"
                 }
 
 
 RESULTS_TYPES = {
-                 'xml' : "application/sparql-results+xml" ,
-                 'xmlschema' : "application/x-ms-access-export+xml",
-                 'json' : "application/sparql-results+json"
+                 'xml': "application/sparql-results+xml",
+                 'xmlschema': "application/x-ms-access-export+xml",
+                 'json': "application/sparql-results+json"
                  }
 
 # The purpose of this construction is to use shared strings when
@@ -105,22 +104,26 @@ XSD_BOOLEAN = 'http://www.w3.org/2001/XMLSchema#boolean'
 
 datatype_dict = {
                  '': '',
-                 XSD_STRING : XSD_STRING,
-                 XSD_INT : XSD_INT,
-                 XSD_LONG : XSD_LONG,
-                 XSD_DOUBLE : XSD_DOUBLE,
-                 XSD_FLOAT : XSD_FLOAT,
-                 XSD_INTEGER : XSD_INTEGER,
-                 XSD_DECIMAL : XSD_DECIMAL,
-                 XSD_DATETIME : XSD_DATETIME,
-                 XSD_DATE : XSD_DATE,
-                 XSD_TIME : XSD_TIME,
-                 XSD_BOOLEAN : XSD_BOOLEAN
+                 XSD_STRING: XSD_STRING,
+                 XSD_INT: XSD_INT,
+                 XSD_LONG: XSD_LONG,
+                 XSD_DOUBLE: XSD_DOUBLE,
+                 XSD_FLOAT: XSD_FLOAT,
+                 XSD_INTEGER: XSD_INTEGER,
+                 XSD_DECIMAL: XSD_DECIMAL,
+                 XSD_DATETIME: XSD_DATETIME,
+                 XSD_DATE: XSD_DATE,
+                 XSD_TIME: XSD_TIME,
+                 XSD_BOOLEAN: XSD_BOOLEAN
                  }
 
 # allow import from RestrictedPython
-__allow_access_to_unprotected_subobjects__ = {'Datatype': 1, 'unpack_row': 1,
-    'RDFTerm': 1, 'IRI': 1, 'Literal': 1, 'BlankNode': 1}
+__allow_access_to_unprotected_subobjects__ = {
+                                                'Datatype': 1, 'unpack_row': 1,
+                                                'RDFTerm': 1, 'IRI': 1,
+                                                'Literal': 1, 'BlankNode': 1
+}
+
 
 def Datatype(value):
     """
@@ -128,13 +131,14 @@ def Datatype(value):
     intern() only works for plain strings - not unicode.
     We make it look like a class, because it conceptually could be.
     """
-    if value==None:
+    if value is None:
         r = None
     elif value in datatype_dict:
         r = datatype_dict[value]
     else:
         r = datatype_dict[value] = value
     return r
+
 
 class RDFTerm(object):
     """
@@ -159,6 +163,7 @@ class RDFTerm(object):
     def __repr__(self):
         return '<%s %s>' % (type(self).__name__, self.n3())
 
+
 class IRI(RDFTerm):
     """ An RDF resource. """
 
@@ -171,7 +176,8 @@ class IRI(RDFTerm):
     def __eq__(self, other):
         if type(self) != type(other):
             return False
-        if self.value == other.value: return True
+        if self.value == other.value:
+            return True
         return False
 
     def n3(self):
@@ -184,14 +190,16 @@ _n3_quote_map = {
     '\t': '\\t',
     '\\': '\\\\',
 }
+
+
 def _n3_quote(string):
     def escape(m):
         ch = m.group()
         if ch in _n3_quote_map:
             return _n3_quote_map[ch]
-        else:
-            return "\\u%04x" % ord(ch)
+        return "\\u%04x" % ord(ch)
     return '"' + _n3_quote_char.sub(escape, string) + '"'
+
 
 class Literal(RDFTerm):
     """
@@ -203,16 +211,15 @@ class Literal(RDFTerm):
         self.datatype = datatype
 
     def __eq__(self, other):
-       if type(self) != type(other):
-           return False
+        if type(self) != type(other):
+            return False
 
-       elif (self.value == other.value and
-             self.lang == other.lang and
-             self.datatype == other.datatype):
-           return True
+        elif (self.value == other.value and
+              self.lang == other.lang and
+              self.datatype == other.datatype):
+            return True
 
-       else:
-           return False
+        return False
 
     def n3(self):
         n3_value = _n3_quote(self.value)
@@ -225,23 +232,25 @@ class Literal(RDFTerm):
 
         return n3_value
 
+
 class BlankNode(RDFTerm):
     """ Blank node. Similar to `IRI` but lacks a stable identifier. """
     def __init__(self, value):
         self.value = value
 
     def __eq__(self, other):
-       if type(self) != type(other):
-           return False
-       if self.value == other.value:
-           return True
-       return False
+        if type(self) != type(other):
+            return False
+        if self.value == other.value:
+            return True
+        return False
 
     def n3(self):
         return '_:%s' % self.value
 
 _n3parser_lang = re.compile(r'@(?P<lang>\w+)$')
 _n3parser_datatype = re.compile(r'\^\^<(?P<datatype>[^\^"\'>]+)>$')
+
 
 def parse_n3_term(src):
     """
@@ -286,26 +295,39 @@ def parse_n3_term(src):
                 ast = compiler.parse("value = u" + src)
             else:
                 # should be fixed due to #111217
-                ast = compile("value = u" + src)
+                ast = astcompiler.parse("value = " + src)
         except:
             raise ValueError
 
-        # Don't allow any extra tokens in the AST
-        if len(ast.node.getChildNodes()) != 1:
-            raise ValueError
-        assign_node = ast.node.getChildNodes()[0]
-        if len(assign_node.getChildNodes()) != 2:
-            raise ValueError
-        value_node = assign_node.getChildNodes()[1]
-        if value_node.getChildNodes():
-            raise ValueError
         if six.PY2:
+            # Don't allow any extra tokens in the AST
+            if len(ast.node.getChildNodes()) != 1:
+                raise ValueError
+            assign_node = ast.node.getChildNodes()[0]
+            if len(assign_node.getChildNodes()) != 2:
+                raise ValueError
+            value_node = assign_node.getChildNodes()[1]
+            if value_node.getChildNodes():
+                raise ValueError
             if value_node.__class__ != compiler.ast.Const:
                 raise ValueError
+            value = value_node.value
         else:
-            if value_node.__class__ != ast.Constant():
+            # Don't allow any extra tokens in the AST
+            if len(ast.body) != 1:
                 raise ValueError
-        value = value_node.value
+            assign_node = ast.body[0]
+
+            if len(assign_node._fields) != 2:
+                raise ValueError
+
+            value_node = assign_node.value
+            if len(value_node._fields) != 1:
+                raise ValueError
+
+            # if value_node.__class__ != ast.Constant():
+            #     raise ValueError
+            value = getattr(value_node, value_node._fields[0])
 
         if type(value) is not six.text_type:
             raise ValueError
@@ -317,6 +339,8 @@ def parse_n3_term(src):
 # _ServiceMixin
 #
 #########################################
+
+
 class _ServiceMixin(object):
     def __init__(self, endpoint, method="POST", accept=RESULTS_TYPES['xml']):
         self._method = method
@@ -332,7 +356,8 @@ class _ServiceMixin(object):
     def _setMethod(self, method):
         if method in ("GET", "POST"):
             self._method = method
-        else: raise ValueError("Only GET or POST is allowed")
+        else:
+            raise ValueError("Only GET or POST is allowed")
 
     def _getMethod(self):
         return self._method
@@ -366,14 +391,15 @@ class _ServiceMixin(object):
 #
 #########################################
 
+
 class Service(_ServiceMixin):
     """
     This is the main entry to the library.
     The user creates a :class:`Service`, then sends a query to it.
     If we want to have persistent connections, then open them here.
     """
-    def __init__(self, endpoint, qs_encoding = "utf-8", method = "POST",
-                 accept = "application/sparql-results+xml"):
+    def __init__(self, endpoint, qs_encoding="utf-8", method="POST",
+                 accept="application/sparql-results+xml"):
         _ServiceMixin.__init__(self, endpoint, method, accept)
         self.qs_encoding = qs_encoding
 
@@ -385,7 +411,7 @@ class Service(_ServiceMixin):
         q._prefix_map = copy.deepcopy(self._prefix_map)
         return q
 
-    def query(self, query, timeout = 0, raw=False):
+    def query(self, query, timeout=0, raw=False):
         q = self.createQuery()
         return q.query(query, timeout, raw=raw)
 
@@ -395,11 +421,9 @@ class Service(_ServiceMixin):
         head = "Basic %s" % encodestring("%s:%s" % (username, password)).replace("\012", "")
         self._headers_map['Authorization'] = head
 
+
 def _parseBoolean(val):
-    if val.lower() in ('true', '1'):
-        return True
-    else:
-        return False
+    return val.lower() in ('true', '1')
 
 
 # XMLSchema types and cast functions
@@ -408,8 +432,8 @@ _types = {
     XSD_LONG: int,
     XSD_DOUBLE: float,
     XSD_FLOAT: float,
-    XSD_INTEGER: int, # INTEGER is a DECIMAL, but Python `int` has no size
-                      # limit, so it's safe to use
+    XSD_INTEGER: int,  # INTEGER is a DECIMAL, but Python `int` has no size
+                       # limit, so it's safe to use
     XSD_DECIMAL: decimal.Decimal,
     XSD_BOOLEAN: _parseBoolean,
 }
@@ -421,6 +445,7 @@ try:
     _types[XSD_TIME] = lambda v: dateutil.parser.parse(v).time()
 except ImportError:
     pass
+
 
 def unpack_row(row, convert=None, convert_type={}):
     """
@@ -464,6 +489,8 @@ def unpack_row(row, convert=None, convert_type={}):
 # _Query
 #
 #########################################
+
+
 class _Query(_ServiceMixin):
 
     def __init__(self, service):
@@ -510,8 +537,10 @@ class _Query(_ServiceMixin):
 
     def _build_response(self, query, opener, buf, timeout):
         request = self._build_request(query)
+        if type(query) is not bytes and not six.PY2:
+            query = query.encode()
         return self._get_response(opener, request, buf,
-                                      timeout if timeout > 0 else None)
+                                  timeout if timeout > 0 else None)
 
     def _request(self, statement, timeout=0):
         """
@@ -524,6 +553,8 @@ class _Query(_ServiceMixin):
         opener = ev_request.build_opener(RedirectHandler)
         opener.addheaders = list(self.headers().items())
         try:
+            if type(query) is not bytes and not six.PY2:
+                query = query.encode()
             response = self._build_response(query, opener, buf, timeout)
         except SparqlException as error:
             self.endpoint = error.message
@@ -549,13 +580,15 @@ class _Query(_ServiceMixin):
         """
         args = []
         # refs #72876 removing the replace of newline to allow the comments in sparql queries
-        #statement = statement.replace("\n", " ").encode('utf-8')
+        # statement = statement.replace("\n", " ").encode('utf-8')
         # not needed py3
         # statement = statement.encode('utf-8')
 
         pref = ' '.join(["PREFIX %s: <%s> " % (p, self._prefix_map[p]) for p in self._prefix_map])
-
-        statement = pref + statement
+        if six.PY2:
+            statement = pref + statement
+        else:
+            statement = pref.encode() + statement.encode()
 
         args.append(('query', statement))
 
@@ -564,7 +597,9 @@ class _Query(_ServiceMixin):
 
         for uri in self.namedGraphs():
             args.append(('named-graph-uri', uri))
-        return urlencode(args).encode('utf-8')
+        if six.PY2:
+            return urlencode(args).encode('utf-8')
+        return urlencode(args)
 
 
 class RedirectHandler(ev_request.HTTPRedirectHandler):
@@ -583,8 +618,13 @@ class _ResultsParser(object):
     Parse the XML result.
     """
 
-    __allow_access_to_unprotected_subobjects__ = {'fetchone': 1,
-        'fetchmany': 1, 'fetchall': 1, 'hasresult': 1, 'variables': 1}
+    __allow_access_to_unprotected_subobjects__ = {
+                                                    'fetchone': 1,
+                                                    'fetchmany': 1,
+                                                    'fetchall': 1,
+                                                    'hasresult': 1,
+                                                    'variables': 1
+    }
 
     def __init__(self, fp):
         self.__fp = fp
@@ -611,7 +651,7 @@ class _ResultsParser(object):
                     self.events.expandNode(node)
                     self._hasResult = (node.firstChild.data == 'true')
                 elif node.tagName == 'result':
-                    return # We should not arrive here
+                    return  # We should not arrive here
             elif event == pulldom.END_ELEMENT:
                 if node.tagName == 'head' and self.variables:
                     return
@@ -647,7 +687,7 @@ class _ResultsParser(object):
             for (event, node) in self.events:
                 if event == pulldom.START_ELEMENT:
                     if node.tagName == 'result':
-                        self._vals = [None] *  len(self.variables)
+                        self._vals = [None] * len(self.variables)
                     elif node.tagName == 'binding':
                         idx = self.variables.index(node.attributes['name'].value)
                     elif node.tagName == 'uri':
@@ -666,10 +706,14 @@ class _ResultsParser(object):
                         self._vals[idx] = BlankNode(data)
                 elif event == pulldom.END_ELEMENT:
                     if node.tagName == 'result':
-                        #print "rtn:", len(self._vals), self._vals
+                        # print "rtn:", len(self._vals), self._vals
                         yield tuple(self._vals)
         except SAXParseException as e:
-            faultString = 'The data is ' + e.message
+            if six.PY2:
+                message = e.message
+            else:
+                message = e.getMessage()
+            faultString = 'The data is ' + message
             print(faultString)
             yield tuple()
 
@@ -687,8 +731,10 @@ class _ResultsParser(object):
         for row in self.fetchone():
             result.append(row)
             num -= 1
-            if num <= 0: return result
+            if num <= 0:
+                return result
         return result
+
 
 def query(endpoint, query, timeout=0, qs_encoding="utf-8", method="POST",
           accept="application/sparql-results+xml", raw=False):
@@ -699,6 +745,7 @@ def query(endpoint, query, timeout=0, qs_encoding="utf-8", method="POST",
     """
     s = Service(endpoint, qs_encoding, method, accept)
     return s.query(query, timeout, raw=raw)
+
 
 def _interactive(endpoint):
     while True:
@@ -737,15 +784,14 @@ if __name__ == '__main__':
 
     try:
         c = codecs.getwriter(sys.stdout.encoding)
-    except:
+    except Exception:
         c = codecs.getwriter('ascii')
     sys.stdout = c(sys.stdout, 'replace')
 
-
     parser = OptionParser(usage="%prog [-i] endpoint",
-        version="%prog " + str(__version__))
+                          version="%prog " + str(__version__))
     parser.add_option("-i", dest="interactive", action="store_true",
-                help="Enables interactive mode")
+                      help="Enables interactive mode")
 
     (options, args) = parser.parse_args()
 
@@ -763,5 +809,9 @@ if __name__ == '__main__':
         for row in result.fetchone():
             print("\t".join(map(six.text_type, row)))
     except SparqlException as e:
-        faultString = e.message
+        if six.PY2:
+            message = e.message
+        else:
+            message = e.getMessage()
+        faultString = message
         print(faultString)

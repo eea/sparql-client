@@ -1,5 +1,11 @@
 import unittest
 import sparql
+import six
+
+try:
+    from testdatatypes import _literal_data
+except ImportError:
+    from .testdatatypes import _literal_data
 
 _string_literals = [
     ('""', ''), # empty string
@@ -14,7 +20,6 @@ _string_literals = [
     ("'''some\ntext\n   with spaces'''", 'some\ntext\n   with spaces'),
 ]
 
-from testdatatypes import _literal_data
 for _value, _n3 in _literal_data:
     _string_literals.append((_n3, _value))
 
@@ -23,10 +28,17 @@ class N3ParsingTest(unittest.TestCase):
 
     def test_unicode(self):
         value = 'http://example.com/some_iri'
+
         class Tricky(object):
+
             def __unicode__(self):
                 return '<%s>' % value
-        self.assertEqual(sparql.parse_n3_term(Tricky()), sparql.IRI(value))
+
+        if six.PY2:
+            parsed = sparql.parse_n3_term(Tricky())
+        else:
+            parsed = sparql.parse_n3_term(Tricky().__unicode__())
+        self.assertEqual(parsed, sparql.IRI(value))
 
     def test_parse_IRI(self):
         value = 'http://example.com/some_iri'
@@ -45,7 +57,7 @@ class N3ParsingTest(unittest.TestCase):
         self.assertRaises(ValueError, parse, '<http://bro.ken/i>ri>')
 
     def test_literal(self):
-        for n3_value, value in _string_literals:
+        for (n3_value, value) in _string_literals:
             result = sparql.parse_n3_term(n3_value)
             self.assertTrue(type(result) is sparql.Literal)
             self.assertEqual(result.lang, None)
@@ -55,7 +67,7 @@ class N3ParsingTest(unittest.TestCase):
             self.assertEqual(sparql.parse_n3_term(l.n3()), l)
 
     def test_literal_with_lang(self):
-        for n3_value, value in _string_literals:
+        for (n3_value, value) in _string_literals:
             n3_value_with_lang = n3_value + '@en'
             result = sparql.parse_n3_term(n3_value_with_lang)
             self.assertTrue(type(result) is sparql.Literal)
@@ -66,8 +78,8 @@ class N3ParsingTest(unittest.TestCase):
             self.assertEqual(sparql.parse_n3_term(l.n3()), l)
 
     def test_typed_literals(self):
-        million_uri = u"http://aims.fao.org/aos/geopolitical.owl#MillionUSD"
-        for n3_value, value in _string_literals:
+        million_uri = u'http://aims.fao.org/aos/geopolitical.owl#MillionUSD'
+        for (n3_value, value) in _string_literals:
             n3_value_with_type = n3_value + '^^<' + million_uri + '>'
             result = sparql.parse_n3_term(n3_value_with_type)
             self.assertTrue(type(result) is sparql.Literal)

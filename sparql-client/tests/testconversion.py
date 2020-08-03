@@ -3,8 +3,8 @@
 
 import unittest
 from datetime import datetime, date, time
-import sparql
 import os.path
+import sparql
 from mock import Mock, patch
 from six.moves import map
 
