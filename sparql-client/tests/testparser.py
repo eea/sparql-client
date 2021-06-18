@@ -11,7 +11,7 @@ import six
 
 
 def _open_datafile(name):
-    return open(os.path.join(os.path.dirname(__file__), name))
+    return open(os.path.join(os.path.dirname(__file__), name), encoding="utf-8")
 
 
 XSD_FAO_MILLION = 'http://aims.fao.org/aos/geopolitical.owl#MillionUSD'
