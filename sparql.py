@@ -47,7 +47,7 @@ and then executes them. Use a double line (two 'enters') to separate queries.
 Otherwise, the query is read from standard input.
 """
 
-from base64 import encodestring
+from base64 import b64encode
 from six.moves import input, map
 from six.moves.urllib.parse import urlencode
 from xml.dom import pulldom
@@ -58,6 +58,7 @@ import re
 import tempfile
 import eventlet
 import six
+
 if six.PY2:
     from eventlet.green import urllib2 as ev_request
     import compiler
@@ -73,19 +74,18 @@ except Exception:
 USER_AGENT = "sparql-client/%s +https://www.eionet.europa.eu/software/sparql-client/" % __version__
 
 CONTENT_TYPE = {
-                 'turtle': "application/turtle",
-                 'n3': "application/n3",
-                 'rdfxml': "application/rdf+xml",
-                 'ntriples': "application/n-triples",
-                 'xml': "application/xml"
-                }
-
+    'turtle': "application/turtle",
+    'n3': "application/n3",
+    'rdfxml': "application/rdf+xml",
+    'ntriples': "application/n-triples",
+    'xml': "application/xml"
+}
 
 RESULTS_TYPES = {
-                 'xml': "application/sparql-results+xml",
-                 'xmlschema': "application/x-ms-access-export+xml",
-                 'json': "application/sparql-results+json"
-                 }
+    'xml': "application/sparql-results+xml",
+    'xmlschema': "application/x-ms-access-export+xml",
+    'json': "application/sparql-results+json"
+}
 
 # The purpose of this construction is to use shared strings when
 # they have the same value. This way comparisons can happen on the
@@ -103,25 +103,25 @@ XSD_TIME = 'http://www.w3.org/2001/XMLSchema#time'
 XSD_BOOLEAN = 'http://www.w3.org/2001/XMLSchema#boolean'
 
 datatype_dict = {
-                 '': '',
-                 XSD_STRING: XSD_STRING,
-                 XSD_INT: XSD_INT,
-                 XSD_LONG: XSD_LONG,
-                 XSD_DOUBLE: XSD_DOUBLE,
-                 XSD_FLOAT: XSD_FLOAT,
-                 XSD_INTEGER: XSD_INTEGER,
-                 XSD_DECIMAL: XSD_DECIMAL,
-                 XSD_DATETIME: XSD_DATETIME,
-                 XSD_DATE: XSD_DATE,
-                 XSD_TIME: XSD_TIME,
-                 XSD_BOOLEAN: XSD_BOOLEAN
-                 }
+    '': '',
+    XSD_STRING: XSD_STRING,
+    XSD_INT: XSD_INT,
+    XSD_LONG: XSD_LONG,
+    XSD_DOUBLE: XSD_DOUBLE,
+    XSD_FLOAT: XSD_FLOAT,
+    XSD_INTEGER: XSD_INTEGER,
+    XSD_DECIMAL: XSD_DECIMAL,
+    XSD_DATETIME: XSD_DATETIME,
+    XSD_DATE: XSD_DATE,
+    XSD_TIME: XSD_TIME,
+    XSD_BOOLEAN: XSD_BOOLEAN
+}
 
 # allow import from RestrictedPython
 __allow_access_to_unprotected_subobjects__ = {
-                                                'Datatype': 1, 'unpack_row': 1,
-                                                'RDFTerm': 1, 'IRI': 1,
-                                                'Literal': 1, 'BlankNode': 1
+    'Datatype': 1, 'unpack_row': 1,
+    'RDFTerm': 1, 'IRI': 1,
+    'Literal': 1, 'BlankNode': 1
 }
 
 
@@ -183,6 +183,7 @@ class IRI(RDFTerm):
     def n3(self):
         return '<%s>' % self.value
 
+
 _n3_quote_char = re.compile(r'[^ -~]|["\\]')
 _n3_quote_map = {
     '"': '\\"',
@@ -198,6 +199,7 @@ def _n3_quote(string):
         if ch in _n3_quote_map:
             return _n3_quote_map[ch]
         return "\\u%04x" % ord(ch)
+
     return '"' + _n3_quote_char.sub(escape, string) + '"'
 
 
@@ -205,6 +207,7 @@ class Literal(RDFTerm):
     """
     Literals. These can take a data type or a language code.
     """
+
     def __init__(self, value, datatype=None, lang=None):
         self.value = six.text_type(value)
         self.lang = lang
@@ -235,6 +238,7 @@ class Literal(RDFTerm):
 
 class BlankNode(RDFTerm):
     """ Blank node. Similar to `IRI` but lacks a stable identifier. """
+
     def __init__(self, value):
         self.value = value
 
@@ -247,6 +251,7 @@ class BlankNode(RDFTerm):
 
     def n3(self):
         return '_:%s' % self.value
+
 
 _n3parser_lang = re.compile(r'@(?P<lang>\w+)$')
 _n3parser_datatype = re.compile(r'\^\^<(?P<datatype>[^\^"\'>]+)>$')
@@ -318,12 +323,14 @@ def parse_n3_term(src):
                 raise ValueError
             assign_node = ast.body[0]
 
-            if len(assign_node._fields) != 2:
+            # type_comment is added since 3.8, discard it from condition check
+            if len(assign_node._fields) != 2 and len(tuple(f for f in assign_node._fields if f != "type_comment")) != 2:
                 raise ValueError
 
             value_node = assign_node.value
             if len(value_node._fields) != 1:
-                raise ValueError
+                if not isinstance(value_node, astcompiler.Constant):
+                    raise ValueError
 
             # if value_node.__class__ != ast.Constant():
             #     raise ValueError
@@ -333,6 +340,7 @@ def parse_n3_term(src):
             raise ValueError
 
         return Literal(value, datatype, lang)
+
 
 #########################################
 #
@@ -385,6 +393,7 @@ class _ServiceMixin(object):
     def headers(self):
         return self._headers_map
 
+
 #########################################
 #
 # Service
@@ -398,6 +407,7 @@ class Service(_ServiceMixin):
     The user creates a :class:`Service`, then sends a query to it.
     If we want to have persistent connections, then open them here.
     """
+
     def __init__(self, endpoint, qs_encoding="utf-8", method="POST",
                  accept="application/sparql-results+xml"):
         _ServiceMixin.__init__(self, endpoint, method, accept)
@@ -416,9 +426,8 @@ class Service(_ServiceMixin):
         return q.query(query, timeout, raw=raw)
 
     def authenticate(self, username, password):
-        # self._headers_map['Authorization'] = "Basic %s" % replace(
-        #         encodestring("%s:%s" % (username, password)), "\012", "")
-        head = "Basic %s" % encodestring("%s:%s" % (username, password)).replace("\012", "")
+        cred = b64encode("{}:{}".format(username, password).encode()).decode()
+        head = "Basic {}".format(cred)
         self._headers_map['Authorization'] = head
 
 
@@ -433,13 +442,14 @@ _types = {
     XSD_DOUBLE: float,
     XSD_FLOAT: float,
     XSD_INTEGER: int,  # INTEGER is a DECIMAL, but Python `int` has no size
-                       # limit, so it's safe to use
+    # limit, so it's safe to use
     XSD_DECIMAL: decimal.Decimal,
     XSD_BOOLEAN: _parseBoolean,
 }
 
 try:
     import dateutil.parser
+
     _types[XSD_DATETIME] = dateutil.parser.parse
     _types[XSD_DATE] = lambda v: dateutil.parser.parse(v).date()
     _types[XSD_TIME] = lambda v: dateutil.parser.parse(v).time()
@@ -483,6 +493,7 @@ def unpack_row(row, convert=None, convert_type={}):
             value = item.value
         out.append(value)
     return out
+
 
 #########################################
 #
@@ -606,6 +617,7 @@ class RedirectHandler(ev_request.HTTPRedirectHandler):
     """
     Subclass the HTTPRedirectHandler to re-contruct request when follow redirect
     """
+
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if code in (301, 302, 303, 307):
             raise SparqlException(code, newurl)
@@ -619,11 +631,11 @@ class _ResultsParser(object):
     """
 
     __allow_access_to_unprotected_subobjects__ = {
-                                                    'fetchone': 1,
-                                                    'fetchmany': 1,
-                                                    'fetchall': 1,
-                                                    'hasresult': 1,
-                                                    'variables': 1
+        'fetchone': 1,
+        'fetchmany': 1,
+        'fetchall': 1,
+        'hasresult': 1,
+        'variables': 1
     }
 
     def __init__(self, fp):
@@ -773,9 +785,11 @@ def _interactive(endpoint):
 
 class SparqlException(Exception):
     """ Sparql Exceptions """
+
     def __init__(self, code, message):
         self.code = code
         self.message = message
+
 
 if __name__ == '__main__':
     import sys
