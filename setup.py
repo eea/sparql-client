@@ -1,4 +1,5 @@
 import os
+
 try:
     from setuptools import setup
 except ImportError:
@@ -7,20 +8,19 @@ except ImportError:
 NAME = 'sparql-client'
 VERSION = open('version.txt').read().strip()
 
-
 setup(name=NAME,
       version=VERSION,
       description='Python API to query a SPARQL endpoint',
-      long_description=open('README.rst').read() + "\n\n" + \
-                       open(os.path.join("docs", "HISTORY.txt")).read(),
+      long_description=open('README.rst').read() + "\n\n" + open(os.path.join("docs", "HISTORY.txt")).read(),
       classifiers=[
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 2.7",
-        'Operating System :: OS Independent',
-        'Topic :: Software Development :: Libraries :: Python Modules',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 3.7",
+          "Programming Language :: Python :: 3.9",
+          "Programming Language :: Python :: 2.7",
+          'Operating System :: OS Independent',
+          'Topic :: Software Development :: Libraries :: Python Modules',
       ],
       keywords="Sparql Client",
       author='European Environment Agency: IDM2 A-Team',
@@ -32,12 +32,13 @@ setup(name=NAME,
       install_requires=[
           'eventlet',
           'six',
+          'python-dateutil',
           'dnspython < 2.0.0',
       ],
       extras_require={
-            'test': [
-                'mock',
-            ]
+          'test': [
+              'mock',
+          ]
       },
 
       )

@@ -47,7 +47,9 @@ and then executes them. Use a double line (two 'enters') to separate queries.
 Otherwise, the query is read from standard input.
 """
 
-from base64 import encodestring
+from base64 import encodebytes
+from typing import cast
+
 from six.moves import input, map
 from six.moves.urllib.parse import urlencode
 from xml.dom import pulldom
@@ -313,21 +315,12 @@ def parse_n3_term(src):
                 raise ValueError
             value = value_node.value
         else:
-            # Don't allow any extra tokens in the AST
-            if len(ast.body) != 1:
+            if len(ast.body) != 1 or not isinstance(ast.body[0], astcompiler.Assign):
                 raise ValueError
-            assign_node = ast.body[0]
-
-            if len(assign_node._fields) != 2:
+            assign_node = cast(astcompiler.Assign, ast.body[0])
+            if not isinstance(assign_node.value, astcompiler.Constant):
                 raise ValueError
-
-            value_node = assign_node.value
-            if len(value_node._fields) != 1:
-                raise ValueError
-
-            # if value_node.__class__ != ast.Constant():
-            #     raise ValueError
-            value = getattr(value_node, value_node._fields[0])
+            value = cast(astcompiler.Constant, assign_node.value).value
 
         if type(value) is not six.text_type:
             raise ValueError
@@ -417,8 +410,8 @@ class Service(_ServiceMixin):
 
     def authenticate(self, username, password):
         # self._headers_map['Authorization'] = "Basic %s" % replace(
-        #         encodestring("%s:%s" % (username, password)), "\012", "")
-        head = "Basic %s" % encodestring("%s:%s" % (username, password)).replace("\012", "")
+        #         encodebytes("%s:%s" % (username, password)), "\012", "")
+        head = "Basic %s" % encodebytes("%s:%s" % (username, password)).replace("\012", "")
         self._headers_map['Authorization'] = head
 
 
@@ -502,7 +495,7 @@ class _Query(_ServiceMixin):
                 separator = '&'
             else:
                 separator = '?'
-            uri = self.endpoint.strip() + separator + query
+            uri = self.endpoint.strip() + str(separator) + str(query)
             return ev_request.Request(uri)
         else:
             # uri = self.endpoint.strip().encode('ASCII')
@@ -776,6 +769,7 @@ class SparqlException(Exception):
     def __init__(self, code, message):
         self.code = code
         self.message = message
+
 
 if __name__ == '__main__':
     import sys
