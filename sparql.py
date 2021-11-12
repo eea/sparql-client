@@ -502,7 +502,7 @@ class _Query(_ServiceMixin):
                 separator = '&'
             else:
                 separator = '?'
-            uri = self.endpoint.strip() + separator + query
+            uri = self.endpoint.strip() + str(separator) + str(query)
             return ev_request.Request(uri)
         else:
             # uri = self.endpoint.strip().encode('ASCII')
