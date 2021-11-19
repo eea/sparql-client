@@ -47,7 +47,10 @@ and then executes them. Use a double line (two 'enters') to separate queries.
 Otherwise, the query is read from standard input.
 """
 
-from base64 import encodebytes
+try:
+    from base64 import encodestring
+except ImportError:
+    from base64 import encodebytes as encodestring
 from six.moves import input, map
 from six.moves.urllib.parse import urlencode
 from xml.dom import pulldom
@@ -417,8 +420,8 @@ class Service(_ServiceMixin):
 
     def authenticate(self, username, password):
         # self._headers_map['Authorization'] = "Basic %s" % replace(
-        #         encodebytes("%s:%s" % (username, password)), "\012", "")
-        head = "Basic %s" % encodebytes("%s:%s" % (username, password)).replace("\012", "")
+        #         encodestring("%s:%s" % (username, password)), "\012", "")
+        head = "Basic %s" % encodestring("%s:%s" % (username, password)).replace("\012", "")
         self._headers_map['Authorization'] = head
 
 
