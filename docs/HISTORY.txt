@@ -1,6 +1,13 @@
 Changelog
 =========
 
+3.9-dev0 - (unreleased)
+---------------------------
+* fix import error on older python versions
+  [valipod refs #140578]
+* Bug fix: replace encodestring by encodebytes for py3.9 compatibility
+  [valipod refs #140578]
+
 3.8 - (2020-06-17)
 ---------------------------
 * Bug fix: fixed Python3 query execution
