@@ -1,6 +1,8 @@
 import unittest
-import sparql
+
 import six
+
+import sparql
 
 try:
     from testdatatypes import _literal_data
@@ -8,15 +10,15 @@ except ImportError:
     from .testdatatypes import _literal_data
 
 _string_literals = [
-    ('""', ''), # empty string
-    ("''", ''), # empty string
-    ('""""""', ''), # triple quotes (")
-    ("''''''", ''), # triple quotes (')
-    ('" "', ' '), # one space
+    ('""', ''),  # empty string
+    ("''", ''),  # empty string
+    ('""""""', ''),  # triple quotes (")
+    ("''''''", ''),  # triple quotes (')
+    ('" "', ' '),  # one space
     ('"hi"', 'hi'),
     ("'hi'", 'hi'),
-    ("'some\\ntext'", 'some\ntext'), # newline
-    ("'some\\ttext'", 'some\ttext'), # tab
+    ("'some\\ntext'", 'some\ntext'),  # newline
+    ("'some\\ttext'", 'some\ttext'),  # tab
     ("'''some\ntext\n   with spaces'''", 'some\ntext\n   with spaces'),
 ]
 

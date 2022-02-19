@@ -73,7 +73,9 @@ try:
 except Exception:
     __version__ = "2.6"
 
-USER_AGENT = "sparql-client/%s +https://www.eionet.europa.eu/software/sparql-client/" % __version__
+USER_AGENT = \
+    "sparql-client/%s +https://www.eionet.europa.eu/software/sparql-client/" \
+    % __version__
 
 CONTENT_TYPE = {
                  'turtle': "application/turtle",
@@ -316,21 +318,13 @@ def parse_n3_term(src):
                 raise ValueError
             value = value_node.value
         else:
-            # Don't allow any extra tokens in the AST
-            if len(ast.body) != 1:
+            if len(ast.body) != 1 \
+                    or not isinstance(ast.body[0], astcompiler.Assign):
                 raise ValueError
-            assign_node = ast.body[0]
-
-            if len(assign_node._fields) != 2:
+            assign_node = cast(astcompiler.Assign, ast.body[0])
+            if not isinstance(assign_node.value, astcompiler.Constant):
                 raise ValueError
-
-            value_node = assign_node.value
-            if len(value_node._fields) != 1:
-                raise ValueError
-
-            # if value_node.__class__ != ast.Constant():
-            #     raise ValueError
-            value = getattr(value_node, value_node._fields[0])
+            value = cast(astcompiler.Constant, assign_node.value).value
 
         if type(value) is not six.text_type:
             raise ValueError
@@ -420,8 +414,10 @@ class Service(_ServiceMixin):
 
     def authenticate(self, username, password):
         # self._headers_map['Authorization'] = "Basic %s" % replace(
-        #         encodestring("%s:%s" % (username, password)), "\012", "")
-        head = "Basic %s" % encodestring("%s:%s" % (username, password)).replace("\012", "")
+        #         encodebytes("%s:%s" % (username, password)), "\012", "")
+        head = "Basic %s" % encodebytes(
+            "%s:%s" % (username, password)
+        ).replace("\012", "")
         self._headers_map['Authorization'] = head
 
 
@@ -582,12 +578,16 @@ class _Query(_ServiceMixin):
         Creates the REST query string from the statement and graphs.
         """
         args = []
-        # refs #72876 removing the replace of newline to allow the comments in sparql queries
+        # refs #72876 removing the replace of newline to allow the comments
+        # in sparql queries
         # statement = statement.replace("\n", " ").encode('utf-8')
         # not needed py3
         # statement = statement.encode('utf-8')
 
-        pref = ' '.join(["PREFIX %s: <%s> " % (p, self._prefix_map[p]) for p in self._prefix_map])
+        pref = ' '.join([
+            "PREFIX %s: <%s> " % (p, self._prefix_map[p])
+            for p in self._prefix_map
+        ])
         if six.PY2:
             statement = pref + statement
         else:
@@ -607,7 +607,8 @@ class _Query(_ServiceMixin):
 
 class RedirectHandler(ev_request.HTTPRedirectHandler):
     """
-    Subclass the HTTPRedirectHandler to re-contruct request when follow redirect
+    Subclass the HTTPRedirectHandler to re-contruct request
+    when follow redirect
     """
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if code in (301, 302, 303, 307):
@@ -692,7 +693,9 @@ class _ResultsParser(object):
                     if node.tagName == 'result':
                         self._vals = [None] * len(self.variables)
                     elif node.tagName == 'binding':
-                        idx = self.variables.index(node.attributes['name'].value)
+                        idx = self.variables.index(
+                            node.attributes['name'].value
+                        )
                     elif node.tagName == 'uri':
                         self.events.expandNode(node)
                         data = ''.join(t.data for t in node.childNodes)
@@ -701,7 +704,8 @@ class _ResultsParser(object):
                         self.events.expandNode(node)
                         data = ''.join(t.data for t in node.childNodes)
                         lang = node.getAttribute('xml:lang') or None
-                        datatype = Datatype(node.getAttribute('datatype')) or None
+                        datatype = \
+                            Datatype(node.getAttribute('datatype')) or None
                         self._vals[idx] = Literal(data, datatype, lang)
                     elif node.tagName == 'bnode':
                         self.events.expandNode(node)
@@ -779,6 +783,7 @@ class SparqlException(Exception):
     def __init__(self, code, message):
         self.code = code
         self.message = message
+
 
 if __name__ == '__main__':
     import sys
